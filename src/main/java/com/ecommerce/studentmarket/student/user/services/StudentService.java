@@ -2,16 +2,18 @@ package com.ecommerce.studentmarket.student.user.services;
 
 import com.ecommerce.studentmarket.student.cart.domains.CartDomain;
 import com.ecommerce.studentmarket.student.user.domains.StudentDomain;
-import com.ecommerce.studentmarket.student.user.dtos.StudentDto;
+import com.ecommerce.studentmarket.student.user.dtos.StudentRequestDto;
+import com.ecommerce.studentmarket.student.user.dtos.StudentResponseDto;
 import com.ecommerce.studentmarket.student.user.enums.TrangThai;
 import com.ecommerce.studentmarket.student.user.exceptions.StudentAlreadyExistsException;
 import com.ecommerce.studentmarket.student.user.exceptions.StudentNotFoundException;
 import com.ecommerce.studentmarket.student.user.repositories.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,12 +24,12 @@ public class StudentService {
     @Autowired
     private StudentRepository studentRepository;
 
-//    @Autowired
-//    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     //    Thêm tài khoản sinh viên
     @Transactional(rollbackFor = Exception.class)
-    public StudentDomain createStudent(StudentDto studentDto) {
+    public StudentDomain createStudent(StudentRequestDto studentDto) {
         validateStudentNotExists(studentDto);
         StudentDomain student = convertToStudentDomain(studentDto);
         CartDomain cart = new CartDomain();
@@ -39,22 +41,33 @@ public class StudentService {
 
     //  Truy xuất toàn bộ tài khoản sinh viên
     @Transactional(readOnly = true)
-    public List<StudentDomain> getAllStudent() {
-        return studentRepository.findAll();
+    public List<StudentResponseDto> getAllStudent() {
+
+        List<StudentDomain> studentDomains = studentRepository.findAll();
+
+        List<StudentResponseDto> students = new ArrayList<>();
+
+        for (StudentDomain student : studentDomains){
+            students.add(convertToStudentResponseDto(student));
+        }
+
+        return students;
     }
 
     //    Truy xuất tài khoản sinh viên theo MSSV
     @Transactional(readOnly = true)
-    public StudentDomain getStudentById(String mssv) {
-        return studentRepository.findById(mssv).orElseThrow(() -> new StudentNotFoundException(mssv));
+    public StudentResponseDto getStudentById(String mssv) {
+        StudentDomain student = studentRepository.findById(mssv).orElseThrow(() -> new StudentNotFoundException(mssv));
+        return convertToStudentResponseDto(student);
     }
 
     //    Cập nhật thông tin sinh viên
     @Transactional(rollbackFor = Exception.class)
-    public StudentDomain updateStudent(String mssv, StudentDto studentData) {
-        StudentDomain studentDomain = getStudentById(mssv);
+    public StudentResponseDto updateStudent(String mssv, StudentRequestDto studentData) {
+        StudentDomain studentDomain = studentRepository.findById(mssv).orElseThrow(() -> new StudentNotFoundException(mssv));;
         patchStudentFromDto(studentDomain, studentData);
-        return studentRepository.save(studentDomain);
+        studentRepository.save(studentDomain);
+        return getStudentById(mssv);
     }
 
 
@@ -64,7 +77,7 @@ public class StudentService {
             throw new StudentNotFoundException(mssv);
         }
 
-        StudentDomain studentDomain = getStudentById(mssv);
+        StudentDomain studentDomain = studentRepository.findById(mssv).orElseThrow(() -> new StudentNotFoundException(mssv));;
 
         TrangThai newStatus = (studentDomain.getTrangThai() == TrangThai.HOATDONG)
                 ? TrangThai.DINHCHI
@@ -77,7 +90,7 @@ public class StudentService {
     }
 
     //Kiểm tra dữ liệu tồn tại
-    private void validateStudentNotExists(StudentDto studentData) {
+    private void validateStudentNotExists(StudentRequestDto studentData) {
         if (studentRepository.existsById(studentData.getMssv())) {
             throw new StudentAlreadyExistsException(studentData.getMssv());
         }
@@ -86,11 +99,11 @@ public class StudentService {
         }
     }
 
-    //Chuyển DTO sang Domain
-    private StudentDomain convertToStudentDomain(StudentDto studentData) {
+    //Chuyển DTO Request sang Domain
+    private StudentDomain convertToStudentDomain(StudentRequestDto studentData) {
         StudentDomain data = new StudentDomain();
         Optional.ofNullable(studentData.getMssv()).ifPresent(data::setMssv);
-        Optional.ofNullable(studentData.getPassword()).ifPresent(data::setPassword);
+        Optional.ofNullable(studentData.getPassword()).ifPresent(password -> data.setPassword(passwordEncoder.encode(password)));
         Optional.ofNullable(studentData.getHoTen()).ifPresent(data::setHoTen);
         Optional.ofNullable(studentData.getSdt()).ifPresent(data::setSdt);
         Optional.ofNullable(studentData.getLop()).ifPresent(data::setLop);
@@ -101,8 +114,25 @@ public class StudentService {
         return data;
     }
 
+//    Chuyển từ Domain sang DTO Response
+    private StudentResponseDto convertToStudentResponseDto(StudentDomain studentData){
+        StudentResponseDto student = new StudentResponseDto();
+
+        Optional.ofNullable(studentData.getMssv()).ifPresent(student::setMssv);
+        Optional.ofNullable(studentData.getHoTen()).ifPresent(student::setHoTen);
+        Optional.ofNullable(studentData.getSdt()).ifPresent(student::setSdt);
+        Optional.ofNullable(studentData.getLop()).ifPresent(student::setLop);
+        Optional.ofNullable(studentData.getKhoa()).ifPresent(student::setKhoa);
+        Optional.ofNullable(studentData.getGioiTinh()).ifPresent(student::setGioiTinh);
+        Optional.ofNullable(studentData.getTrangThai()).ifPresent(student::setTrangThai);
+        Optional.ofNullable(studentData.getRole()).ifPresent(student::setRole);
+        Optional.ofNullable(studentData.getNgaySinh()).ifPresent(student::setNgaySinh);
+
+        return student;
+    }
+
     //Chuyển từ dữ liệu từ DTO sang Domain phục vụ cho Patch
-    private void patchStudentFromDto(StudentDomain target, StudentDto dto) {
+    private void patchStudentFromDto(StudentDomain target, StudentRequestDto dto) {
         Optional.ofNullable(dto.getHoTen()).ifPresent(target::setHoTen);
         Optional.ofNullable(dto.getSdt()).ifPresent(sdt -> {
             if (studentRepository.existsBySdtAndMssvNot(sdt, target.getMssv())) {

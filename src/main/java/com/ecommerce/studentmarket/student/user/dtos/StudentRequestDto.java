@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class StudentDto {
+public class StudentRequestDto {
 
     @Pattern(regexp = "^[A-Z0-9]+$", message = "Mã số chỉ được chứa chữ hoa và số")
     @Size(min = 5, max = 20, message = "Mã số phải từ 5-20 ký tự")

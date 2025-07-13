@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.admin.config;
+package com.ecommerce.studentmarket.admin.configs;
 
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.ecommerce.studentmarket.admin.repositories",
+        basePackages = {"com.ecommerce.studentmarket.admin.repositories"},
         entityManagerFactoryRef = "adminEntityManagerFactory",
         transactionManagerRef = "adminTransactionManager"
 )
@@ -38,7 +38,7 @@ public class AdminDbConfig {
     ) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
-        em.setPackagesToScan("com.ecommerce.studentmarket.admin.domain");
+        em.setPackagesToScan("com.ecommerce.studentmarket.admin.domains");
         em.setPersistenceUnitName("admin");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();

@@ -1,6 +1,6 @@
 package com.ecommerce.studentmarket.student.user.controllers;
 
-import com.ecommerce.studentmarket.common.ApiConfig.ApiResponse;
+import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
 import com.ecommerce.studentmarket.student.user.exceptions.StudentAlreadyExistsException;
 import com.ecommerce.studentmarket.student.user.exceptions.StudentNotFoundException;
 import org.springframework.http.HttpStatus;

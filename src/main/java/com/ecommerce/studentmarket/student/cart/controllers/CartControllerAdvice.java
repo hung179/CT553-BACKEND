@@ -1,6 +1,6 @@
 package com.ecommerce.studentmarket.student.cart.controllers;
 
-import com.ecommerce.studentmarket.common.ApiConfig.ApiResponse;
+import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
 import com.ecommerce.studentmarket.student.cart.exceptions.CartItemAlreadyExistsException;
 import com.ecommerce.studentmarket.student.cart.exceptions.CartItemNotFoundException;
 import com.ecommerce.studentmarket.student.cart.exceptions.CartItemProductOutOfStockException;

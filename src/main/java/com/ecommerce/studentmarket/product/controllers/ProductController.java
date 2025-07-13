@@ -6,6 +6,7 @@ import com.ecommerce.studentmarket.product.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,7 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('admin', 'student')")
     public ResponseEntity<?> getAllProduct(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size
@@ -27,6 +29,7 @@ public class ProductController {
     }
 
     @GetMapping("/{maSP}")
+    @PreAuthorize("hasRole('admin', 'student')")
     public ResponseEntity<?> getProductById(
             @PathVariable Long maSP
     ){
@@ -35,6 +38,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasRole('admin', 'student')")
     public ResponseEntity<?> searchProductByName(
             @RequestParam String tenSP,
             @RequestParam(defaultValue = "0") Integer page,
@@ -44,6 +48,7 @@ public class ProductController {
     }
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    Còn phải tạo thêm khởi tạo gian hàng sở hữu cho sinh viên trước khi phân quyền ở đây
     public ResponseEntity<?> createProduct(
             @RequestPart("productDto") ProductDto productDto,
             @RequestPart(value = "files", required = false) List<MultipartFile> files

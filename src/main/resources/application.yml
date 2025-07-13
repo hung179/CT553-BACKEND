@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    product-db:
+      jdbc-url: jdbc:postgresql://localhost:5432/productdb
+      username: postgres
+      password: 12345678
+      driver-class-name: org.postgresql.Driver
+    admin-db:
+      jdbc-url: jdbc:postgresql://localhost:5432/admindb
+      username: postgres
+      password: 12345678
+      driver-class-name: org.postgresql.Driver
+    student-db:
+      jdbc-url: jdbc:postgresql://localhost:5432/studentdb
+      username: postgres
+      password: 12345678
+      driver-class-name: org.postgresql.Driver
+    order-db:
+      jdbc-url: jdbc:postgresql://localhost:5432/orderdb
+      username: postgres
+      password: 12345678
+      driver-class-name: org.postgresql.Driver
+    interaction-db:
+      jdbc-url: jdbc:postgresql://localhost:5432/interactiondb
+      username: postgres
+      password: 12345678
+      driver-class-name: org.postgresql.Driver
+    image-db:
+      jdbc-url: jdbc:postgresql://localhost:5432/imagedb
+      username: postgres
+      password: 12345678
+      driver-class-name: org.postgresql.Driver
+
+server:
+  port: 3000
+cloudinary:
+  cloud-name: dvn4jergf
+  api-key: 873419374411529
+  api-secret: M138zr8vg5WpvXbm7vvc14r5glw
+
+jwt:
+    signer-key: EnDmnwbdVwTRRtxNZATCnPWnkBGVUo/Z7Zyo7mvpazOfK13tAwdZ+1R+IMmzxBMP
+

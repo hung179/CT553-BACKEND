@@ -53,4 +53,7 @@ public class StudentDomain {
 
     @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private CartDomain cart;
+
+    @NotEmpty(message = "Role không được để trống")
+    private String role = "student";
 }

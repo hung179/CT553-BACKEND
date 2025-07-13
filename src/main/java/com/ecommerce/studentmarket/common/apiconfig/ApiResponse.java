@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.common.ApiConfig;
+package com.ecommerce.studentmarket.common.apiconfig;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

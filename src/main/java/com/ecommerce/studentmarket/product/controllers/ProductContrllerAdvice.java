@@ -1,6 +1,6 @@
 package com.ecommerce.studentmarket.product.controllers;
 
-import com.ecommerce.studentmarket.common.ApiConfig.ApiResponse;
+import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
 import com.ecommerce.studentmarket.product.exceptions.ProductAlreadyDeletedException;
 import com.ecommerce.studentmarket.product.exceptions.ProductAlreadyExistsException;
 import com.ecommerce.studentmarket.product.exceptions.ProductNotFoundException;

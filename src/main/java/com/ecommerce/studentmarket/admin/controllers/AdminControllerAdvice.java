@@ -1,8 +1,8 @@
-package com.ecommerce.studentmarket.admin.controller;
+package com.ecommerce.studentmarket.admin.controllers;
 
-import com.ecommerce.studentmarket.admin.exception.AdminAlreadyExistsException;
-import com.ecommerce.studentmarket.admin.exception.AdminNotFoundException;
-import com.ecommerce.studentmarket.common.ApiConfig.ApiResponse;
+import com.ecommerce.studentmarket.admin.exceptions.AdminAlreadyExistsException;
+import com.ecommerce.studentmarket.admin.exceptions.AdminNotFoundException;
+import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

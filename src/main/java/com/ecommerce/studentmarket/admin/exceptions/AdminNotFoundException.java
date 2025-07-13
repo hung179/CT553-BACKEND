@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.admin.exception;
+package com.ecommerce.studentmarket.admin.exceptions;
 
 public class AdminNotFoundException extends AdminException {
     public AdminNotFoundException(String ma) {
