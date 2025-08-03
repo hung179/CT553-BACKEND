@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.student.ewallet.dtos;
+package com.ecommerce.studentmarket.admin.systemwallet.dtos;
 
 import com.ecommerce.studentmarket.student.ewallet.enums.LoaiGiaoDich;
 import com.ecommerce.studentmarket.student.ewallet.enums.TrangThaiGiaoDich;
@@ -11,12 +11,11 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionResponseDto {
+public class SystemTransactionResponseDto {
 
     private Long maGD;
 

@@ -1,22 +1,31 @@
-package com.ecommerce.studentmarket.order.dtos.request;
+package com.ecommerce.studentmarket.order.dtos.response;
 
 import com.ecommerce.studentmarket.order.Enums.ThanhToan;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderRequestDto {
+public class OrderResponseDto {
+
+    private Long maDH;
 
     private String mssvDH;
 
-    private Long tongTienDH;
+    private LocalDateTime ngayTaoDH;
+
+    private BigDecimal tongTienDH;
 
     private ThanhToan thanhToan;
 
-    private List<SubOrderRequestDto> subOrder;
+    private LocalDateTime ngayThanhToanDH;
+
+    private List<SubOrderResponseDto> subOrder;
 }

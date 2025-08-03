@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.student.ewallet.dtos;
+package com.ecommerce.studentmarket.admin.systemwallet.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,12 +10,12 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EwalletResponseDto {
+public class SystemWalletResponseDto {
 
-    private Long maVDT;
+    private Long maVHT;
 
-    private BigDecimal soDuVDT;
+    private BigDecimal soDuVHT;
 
-    private Page<TransactionResponseDto> transactions;
+    private Page<SystemTransactionResponseDto> transactions;
 
 }

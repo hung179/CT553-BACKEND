@@ -25,7 +25,7 @@ public class CartDomain {
     @SequenceGenerator(
             name = "cartSeq",
             sequenceName = "cartIdSeq",
-            allocationSize = 1
+            allocationSize = 1000000
     )
     private Long idGioHang;
 

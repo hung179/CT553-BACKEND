@@ -1,5 +1,6 @@
 package com.ecommerce.studentmarket.student.user.dtos;
 
+import com.ecommerce.studentmarket.common.cloudinary.dtos.ImageDto;
 import com.ecommerce.studentmarket.student.user.enums.GioiTinh;
 import com.ecommerce.studentmarket.student.user.enums.TrangThai;
 import jakarta.validation.constraints.*;
@@ -32,6 +33,8 @@ public class StudentRequestDto {
     private GioiTinh gioiTinh;
 
     private TrangThai trangThai;
+
+    private ImageDto image;
 
     @Past(message = "Ngày sinh phải là ngày trong quá khứ")
     private Date ngaySinh;

@@ -1,8 +1,8 @@
-package com.ecommerce.studentmarket.admin.controllers;
+package com.ecommerce.studentmarket.admin.user.controllers;
 
 
-import com.ecommerce.studentmarket.admin.dtos.AdminRequestDto;
-import com.ecommerce.studentmarket.admin.services.AdminService;
+import com.ecommerce.studentmarket.admin.user.dtos.AdminRequestDto;
+import com.ecommerce.studentmarket.admin.user.services.AdminService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

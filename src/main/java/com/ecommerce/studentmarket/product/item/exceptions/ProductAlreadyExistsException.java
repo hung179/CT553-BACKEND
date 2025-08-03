@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.product.items.exceptions;
+package com.ecommerce.studentmarket.product.item.exceptions;
 
 public class ProductAlreadyExistsException extends ProductException{
     public ProductAlreadyExistsException(Long maSP) {

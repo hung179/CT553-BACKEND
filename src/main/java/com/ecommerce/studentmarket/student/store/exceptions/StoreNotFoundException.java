@@ -1,8 +1,8 @@
-package com.ecommerce.studentmarket.student.user.exceptions;
+package com.ecommerce.studentmarket.student.store.exceptions;
 
 
-public class StudentNotFoundException extends StudentException {
-    public StudentNotFoundException(String mssv) {
-        super("Không tìm thấy sinh viên với mã số "+ mssv);
+public class StoreNotFoundException extends StoreException {
+    public StoreNotFoundException(String msh) {
+        super("Không tìm thấy gian hàng với mã số sỡ hữu"+ msh);
     }
 }

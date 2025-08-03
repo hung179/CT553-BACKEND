@@ -1,7 +1,6 @@
 package com.ecommerce.studentmarket.product.item.dtos;
 
 import com.ecommerce.studentmarket.common.cloudinary.domains.ImageDomain;
-import com.ecommerce.studentmarket.product.category.domains.CategoryDomain;
 import com.ecommerce.studentmarket.product.category.dtos.CategoryResponseDto;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -12,7 +11,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class ProductDtoRespone {
+public class ProductResponseDto {
 
     private Long maSP;
 

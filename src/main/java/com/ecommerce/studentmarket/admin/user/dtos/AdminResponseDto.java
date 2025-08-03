@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.admin.dtos;
+package com.ecommerce.studentmarket.admin.user.dtos;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;

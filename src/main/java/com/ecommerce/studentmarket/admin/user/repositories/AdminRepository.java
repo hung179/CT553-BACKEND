@@ -1,6 +1,6 @@
-package com.ecommerce.studentmarket.admin.repositories;
+package com.ecommerce.studentmarket.admin.user.repositories;
 
-import com.ecommerce.studentmarket.admin.domains.AdminDomain;
+import com.ecommerce.studentmarket.admin.user.domains.AdminDomain;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

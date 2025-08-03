@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.product.items.exceptions;
+package com.ecommerce.studentmarket.product.item.exceptions;
 
 public class ProductNotFoundException extends ProductException{
     public ProductNotFoundException(Long maSP){

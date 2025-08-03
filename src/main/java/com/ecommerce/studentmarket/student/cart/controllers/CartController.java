@@ -2,6 +2,7 @@ package com.ecommerce.studentmarket.student.cart.controllers;
 
 
 import com.ecommerce.studentmarket.student.cart.dtos.CartItemDto;
+import com.ecommerce.studentmarket.student.cart.dtos.CartItemIdDto;
 import com.ecommerce.studentmarket.student.cart.services.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,15 @@ public class CartController {
 
     @Autowired
     private CartService cartService;
+
+    @PostMapping("/byId/{mssv}")
+    @PreAuthorize("#mssv == authentication.name")
+    public ResponseEntity<?> getItemsbyMaSP(
+            @PathVariable String mssv,
+            @RequestBody CartItemIdDto cartItemId
+            ){
+        return ResponseEntity.ok(cartService.getCartById(mssv, cartItemId));
+    }
 
     @GetMapping("/all/{mssv}")
     @PreAuthorize("#mssv == authentication.name")
@@ -40,5 +50,13 @@ public class CartController {
             @RequestBody CartItemDto cartItemDto
     ){
         return ResponseEntity.ok(cartService.updateCartItem(mssv, cartItemDto));
+    }
+    @DeleteMapping("/delete/{mssv}")
+    @PreAuthorize("#mssv == authentication.name")
+    public ResponseEntity<?> deleteItem(
+            @PathVariable String mssv,
+            @RequestBody CartItemIdDto cartItemIdDto
+    ){
+        return ResponseEntity.ok(cartService.deleteCartItem(cartItemIdDto));
     }
 }

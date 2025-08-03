@@ -1,5 +1,6 @@
 package com.ecommerce.studentmarket.student.user.dtos;
 
+import com.ecommerce.studentmarket.common.cloudinary.domains.ImageDomain;
 import com.ecommerce.studentmarket.student.cart.domains.CartDomain;
 import com.ecommerce.studentmarket.student.user.enums.GioiTinh;
 import com.ecommerce.studentmarket.student.user.enums.TrangThai;
@@ -31,5 +32,11 @@ public class StudentResponseDto {
     private String sdt;
 
     private String role;
+
+    private ImageDomain image;
+
+    private Long idGioHang;
+
+    private Long maGHDT;
 
 }

@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.student.configDb;
+package com.ecommerce.studentmarket.student.configs;
 
 
 import jakarta.persistence.EntityManagerFactory;
@@ -21,7 +21,9 @@ import java.util.Map;
 @EnableJpaRepositories(
         basePackages = {"com.ecommerce.studentmarket.student.user.repositories",
                         "com.ecommerce.studentmarket.student.cart.repositories",
-                        "com.ecommerce.studentmarket.student.store.repositories"},
+                        "com.ecommerce.studentmarket.student.store.repositories",
+                        "com.ecommerce.studentmarket.student.ewallet.repositories",
+                        "com.ecommerce.studentmarket.student.address.repositories"},
         entityManagerFactoryRef = "studentEntityManagerFactory",
         transactionManagerRef = "studentTransactionManager"
 )
@@ -40,7 +42,9 @@ public class StudentDbConfig {
         em.setDataSource(dataSource);
         em.setPackagesToScan("com.ecommerce.studentmarket.student.user.domains",
                             "com.ecommerce.studentmarket.student.cart.domains",
-                            "com.ecommerce.studentmarket.student.store.domains");
+                            "com.ecommerce.studentmarket.student.store.domains",
+                            "com.ecommerce.studentmarket.student.ewallet.domains",
+                            "com.ecommerce.studentmarket.student.address.domains");
         em.setPersistenceUnitName("student");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();

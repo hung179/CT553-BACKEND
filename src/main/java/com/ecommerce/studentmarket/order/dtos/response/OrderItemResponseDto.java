@@ -1,18 +1,23 @@
-package com.ecommerce.studentmarket.order.dtos.request;
+package com.ecommerce.studentmarket.order.dtos.response;
 
 
+import com.ecommerce.studentmarket.order.domains.OrderItemIdDomain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderItemRequestDto {
+public class OrderItemResponseDto {
 
-    private OrderItemIdRequestDto orderItemId;
+    private OrderItemIdResponseDto maCTDH;
 
-    private Long giaSP;
+    private OrderItemIdResponseDto orderItemId;
+
+    private BigDecimal giaSP;
 
 
 

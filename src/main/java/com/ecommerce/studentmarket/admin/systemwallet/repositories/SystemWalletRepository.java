@@ -1,9 +1,12 @@
-package com.ecommerce.studentmarket.student.ewallet.repositories;
+package com.ecommerce.studentmarket.admin.systemwallet.repositories;
 
+import com.ecommerce.studentmarket.admin.systemwallet.domains.SystemWalletDomain;
 import com.ecommerce.studentmarket.student.ewallet.domains.EwalletDomain;
-import com.ecommerce.studentmarket.student.ewallet.domains.TransactionDomain;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface EwalletRepository extends JpaRepository<EwalletDomain, Long> {
-    EwalletDomain findByStudent_Mssv(String mssv);
+import java.util.Optional;
+
+public interface SystemWalletRepository extends JpaRepository<SystemWalletDomain, Long> {
+    Optional<SystemWalletDomain> findTopByOrderByMaVHTAsc();
+
 }

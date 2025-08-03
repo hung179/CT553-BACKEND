@@ -10,7 +10,7 @@ import java.util.List;
 
 @NoArgsConstructor
 @Data
-public class ProductDto {
+public class ProductRequestDto {
 
     @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Tên sản phẩm chỉ được chứa chữ cái và khoảng trắng")
     @Size(min = 2, max = 100, message = "Tên sản phẩm phải từ 2-100 ký tự")

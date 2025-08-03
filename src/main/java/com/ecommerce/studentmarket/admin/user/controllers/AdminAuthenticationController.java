@@ -1,6 +1,6 @@
-package com.ecommerce.studentmarket.admin.controllers;
+package com.ecommerce.studentmarket.admin.user.controllers;
 
-import com.ecommerce.studentmarket.admin.services.AdminAuthenticationService;
+import com.ecommerce.studentmarket.admin.user.services.AdminAuthenticationService;
 import com.ecommerce.studentmarket.common.authencation.dtos.*;
 import com.nimbusds.jose.JOSEException;
 import org.springframework.beans.factory.annotation.Autowired;

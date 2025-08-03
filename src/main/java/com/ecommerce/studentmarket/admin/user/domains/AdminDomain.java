@@ -1,9 +1,9 @@
-package com.ecommerce.studentmarket.admin.domains;
+package com.ecommerce.studentmarket.admin.user.domains;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.ecommerce.studentmarket.admin.systemwallet.domains.SystemWalletDomain;
+import com.ecommerce.studentmarket.student.ewallet.domains.EwalletDomain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -31,4 +31,10 @@ public class AdminDomain {
 
     @NotEmpty(message = "Role không được trống")
     private String role = "admin";
+
+    @ManyToOne
+    @JoinColumn(name = "maVHT", referencedColumnName = "maVHT")
+    @NotNull(message = "Ví hệ thống liên kết với quản trị viên không được để trống")
+    @JsonIgnore
+    private SystemWalletDomain systemWallet;
 }

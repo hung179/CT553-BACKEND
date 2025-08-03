@@ -1,11 +1,13 @@
-package com.ecommerce.studentmarket.admin.services;
+package com.ecommerce.studentmarket.admin.user.services;
 
-import com.ecommerce.studentmarket.admin.domains.AdminDomain;
-import com.ecommerce.studentmarket.admin.dtos.AdminRequestDto;
-import com.ecommerce.studentmarket.admin.dtos.AdminResponseDto;
-import com.ecommerce.studentmarket.admin.exceptions.AdminAlreadyExistsException;
-import com.ecommerce.studentmarket.admin.exceptions.AdminNotFoundException;
-import com.ecommerce.studentmarket.admin.repositories.AdminRepository;
+import com.ecommerce.studentmarket.admin.systemwallet.domains.SystemWalletDomain;
+import com.ecommerce.studentmarket.admin.systemwallet.repositories.SystemWalletRepository;
+import com.ecommerce.studentmarket.admin.user.domains.AdminDomain;
+import com.ecommerce.studentmarket.admin.user.dtos.AdminRequestDto;
+import com.ecommerce.studentmarket.admin.user.dtos.AdminResponseDto;
+import com.ecommerce.studentmarket.admin.user.exceptions.AdminAlreadyExistsException;
+import com.ecommerce.studentmarket.admin.user.exceptions.AdminNotFoundException;
+import com.ecommerce.studentmarket.admin.user.repositories.AdminRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +28,9 @@ public class AdminService
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private SystemWalletRepository systemWalletRepository;
 
     //Thêm tài khoản quản trị
     @Transactional(rollbackFor = AdminAlreadyExistsException.class)
@@ -87,6 +92,8 @@ public class AdminService
         data.setPassword(passwordEncoder.encode(adminData.getPassword()));
         data.setHoTen(adminData.getHoTen());
         data.setSdt(adminData.getSdt());
+        SystemWalletDomain systemWallet = systemWalletRepository.findTopByOrderByMaVHTAsc().orElseThrow();
+        data.setSystemWallet(systemWallet);
 
         return data;
     }

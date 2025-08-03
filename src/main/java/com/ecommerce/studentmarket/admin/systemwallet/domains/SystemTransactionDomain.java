@@ -1,10 +1,10 @@
-package com.ecommerce.studentmarket.student.ewallet.domains;
+package com.ecommerce.studentmarket.admin.systemwallet.domains;
 
 import com.ecommerce.studentmarket.student.ewallet.enums.LoaiGiaoDich;
 import com.ecommerce.studentmarket.student.ewallet.enums.TrangThaiGiaoDich;
-import com.ecommerce.studentmarket.student.user.domains.StudentDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,46 +12,46 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "GIAO_DICH")
-public class TransactionDomain {
+@Table(name = "GIAO_DICH_HE_THONG")
+public class SystemTransactionDomain {
 
     @Id
     @NotNull(message = "Mã giao dịch không được để trống")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transactionSeq")
-    @SequenceGenerator(
-            name = "transactionSeq",
-            sequenceName = "transactionIdSeq",
-            allocationSize = 1000000
-    )
-    private Long maGD;
+    private Long maGDHT;
 
     @NotNull(message = "Số tiền giao dịch không được để trống")
-    private BigDecimal soTienGD;
+    private BigDecimal soTienGDHT;
 
-    private LoaiGiaoDich loaiGD;
+    private LoaiGiaoDich loaiGDHT;
 
     @NotNull(message = "Thời gian giao dịch không được để trống")
-    private LocalDateTime thoiGianGD;
+    private LocalDateTime thoiGianGDHT;
 
-    private TrangThaiGiaoDich trangThaiGD;
+    private TrangThaiGiaoDich trangThaiGDHT;
 
     @Column(unique = true)
-    private String idGiaoDich;
+    private String idGiaoDichHT;
 
-    private Long idDonHangGD;
+    private Long idDonHangGDHT;
 
-    private String chiTietGD;
+    @NotBlank(message = "Chi tiết giao dịch không được để trống")
+    private String chiTietGDHT;
+
+    @NotBlank(message = "Mã số sinh viên giao dịch không được để trống")
+    private String mssvGDHT;
+
+    @NotBlank(message = "Họ tên sinh viên giao dịch không được để trống")
+    private String hoTenSVGDHT;
 
     @ManyToOne
-    @JoinColumn(name = "maVDT", referencedColumnName = "maVDT")
-    @NotNull(message = "Ví điện tử giao dịch không được để trống")
+    @JoinColumn(name = "maVHT", referencedColumnName = "maVHT")
+    @NotNull(message = "Ví hệ thống trong giao dịch hệ thống không được để trống")
     @JsonIgnore
-    private EwalletDomain wallet;
+    private SystemWalletDomain systemWallet;
 
 }

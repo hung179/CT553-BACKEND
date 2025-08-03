@@ -1,7 +1,7 @@
-package com.ecommerce.studentmarket.admin.controllers;
+package com.ecommerce.studentmarket.admin.user.controllers;
 
-import com.ecommerce.studentmarket.admin.exceptions.AdminAlreadyExistsException;
-import com.ecommerce.studentmarket.admin.exceptions.AdminNotFoundException;
+import com.ecommerce.studentmarket.admin.user.exceptions.AdminAlreadyExistsException;
+import com.ecommerce.studentmarket.admin.user.exceptions.AdminNotFoundException;
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponseType;
 import org.springframework.http.HttpStatus;

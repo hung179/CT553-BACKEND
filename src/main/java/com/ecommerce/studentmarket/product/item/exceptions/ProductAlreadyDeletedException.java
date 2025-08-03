@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.product.items.exceptions;
+package com.ecommerce.studentmarket.product.item.exceptions;
 
 public class ProductAlreadyDeletedException extends ProductException{
     public ProductAlreadyDeletedException(Long maSP){

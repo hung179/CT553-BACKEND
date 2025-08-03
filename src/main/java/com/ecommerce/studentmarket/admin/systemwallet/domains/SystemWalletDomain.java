@@ -1,11 +1,12 @@
-package com.ecommerce.studentmarket.student.ewallet.domains;
+package com.ecommerce.studentmarket.admin.systemwallet.domains;
 
 
-import com.ecommerce.studentmarket.student.user.domains.StudentDomain;
+import com.ecommerce.studentmarket.admin.user.domains.AdminDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,26 +18,24 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "VI_DIEN_TU")
-public class EwalletDomain {
+@Builder
+@Table(name = "VI_HE_THONG")
+public class SystemWalletDomain {
     @Id
-    @NotNull(message = "Mã ví điện tử không được để trống")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "walletSeq")
+    @NotNull(message = "Mã ví hệ thống không được để trống")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sysWalletSeq")
     @SequenceGenerator(
-            name = "walletSeq",
-            sequenceName = "walletIdSeq",
+            name = "sysWalletSeq",
+            sequenceName = "sysWalletIdSeq",
             allocationSize = 1000000
     )
-    private Long maVDT;
+    private Long maVHT;
 
-    private BigDecimal soDuVDT = BigDecimal.valueOf(0);
+    private BigDecimal soDuVHT = BigDecimal.valueOf(0);
 
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TransactionDomain> transactions = new ArrayList<>();
+    @OneToMany(mappedBy = "systemWallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SystemTransactionDomain> transactions = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "mssv", referencedColumnName = "mssv", unique = true)
-    @NotNull(message = "Sinh viên sở hữu ví không được để trống")
-    @JsonIgnore
-    private StudentDomain student;
+    @OneToMany(mappedBy = "systemWallet", cascade = CascadeType.ALL)
+    private List<AdminDomain> admins = new ArrayList<>();
 }

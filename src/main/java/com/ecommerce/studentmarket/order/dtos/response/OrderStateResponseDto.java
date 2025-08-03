@@ -1,29 +1,30 @@
-package com.ecommerce.studentmarket.order.dtos.request;
+package com.ecommerce.studentmarket.order.dtos.response;
 
-import com.ecommerce.studentmarket.order.domains.SubOrderDomain;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class OrderStateRequestDto {
+public class OrderStateResponseDto {
 
-    private Date choDuyetTTDH;
+    private Long maTTDH;
 
-    private Date xacNhanTTDH;
+    private LocalDateTime choDuyetTTDH;
 
-    private Date dangGiaoTTDH;
+    private LocalDateTime xacNhanTTDH;
 
-    private Date daGiaoTTDH;
+    private LocalDateTime dangGiaoTTDH;
 
-    private Date daHuyTTDH;
+    private LocalDateTime daGiaoTTDH;
 
-    private Date daHoanTienTTDH;
+    private LocalDateTime daNhanTTDH;
+
+    private LocalDateTime daHuyTTDH;
+
+    private LocalDateTime daHoanTienTTDH;
 }

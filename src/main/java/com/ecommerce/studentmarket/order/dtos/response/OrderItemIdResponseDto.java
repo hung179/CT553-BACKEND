@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.order.dtos.request;
+package com.ecommerce.studentmarket.order.dtos.response;
 
 
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderItemIdRequestDto {
+public class OrderItemIdResponseDto {
 
     private Long maDH;
 

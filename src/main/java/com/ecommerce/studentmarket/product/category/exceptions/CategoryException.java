@@ -1,12 +1,12 @@
-package com.ecommerce.studentmarket.product.item.exceptions;
+package com.ecommerce.studentmarket.product.category.exceptions;
 
-public class ProductException extends RuntimeException{
+public class CategoryException extends RuntimeException{
 
-    public ProductException(String message){
+    public CategoryException(String message){
         super(message);
     }
 
-    public ProductException(String message, Throwable cause){
+    public CategoryException(String message, Throwable cause){
         super(message, cause);
     }
 }

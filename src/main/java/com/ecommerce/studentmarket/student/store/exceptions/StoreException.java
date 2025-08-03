@@ -1,7 +1,7 @@
-package com.ecommerce.studentmarket.student.user.exceptions;
+package com.ecommerce.studentmarket.student.store.exceptions;
 
-public class StudentException extends RuntimeException {
-    public StudentException(String message) {
+public class StoreException extends RuntimeException {
+    public StoreException(String message) {
         super(message);
     }
 }

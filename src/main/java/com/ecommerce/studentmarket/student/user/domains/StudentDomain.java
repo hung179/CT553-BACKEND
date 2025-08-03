@@ -1,7 +1,10 @@
 package com.ecommerce.studentmarket.student.user.domains;
 
 
+import com.ecommerce.studentmarket.student.address.domains.AddressDomain;
 import com.ecommerce.studentmarket.student.cart.domains.CartDomain;
+import com.ecommerce.studentmarket.student.ewallet.domains.EwalletDomain;
+import com.ecommerce.studentmarket.student.store.domains.StoreDomain;
 import com.ecommerce.studentmarket.student.user.enums.GioiTinh;
 import com.ecommerce.studentmarket.student.user.enums.TrangThai;
 import jakarta.persistence.*;
@@ -10,9 +13,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 import static com.ecommerce.studentmarket.student.user.enums.TrangThai.HOATDONG;
-
 
 @Data
 @NoArgsConstructor
@@ -51,8 +54,19 @@ public class StudentDomain {
     @Column(unique = true)
     private String sdt;
 
+    private Long imageId;
+
     @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private CartDomain cart;
+
+    @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private StoreDomain store;
+
+    @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private EwalletDomain wallet;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AddressDomain> addresses;
 
     @NotEmpty(message = "Role không được để trống")
     private String role = "student";

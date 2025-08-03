@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.student.cart.domains;
+package com.ecommerce.studentmarket.order.domains;
 
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
@@ -12,12 +12,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
-public class CartItemIdDomain implements Serializable {
+public class OrderItemIdDomain implements Serializable {
 
-    @NotNull(message = "Id của giỏ hàng trong chi tiết giỏ hàng không được để trống")
-    private Long idGioHang;
+    @NotNull(message = "Mã đơn hàng trong chi tiết đơn hàng không được để trống")
+    private Long maDH;
 
-    @NotNull(message = "Id của sản phẩm trong chi tiết giỏ hàng không được để trống")
-    private Long idSP;
+    @NotNull(message = "Mã của sản phẩm trong chi tiết đơn hàng không được để trống")
+    private Long maSP;
 
 }

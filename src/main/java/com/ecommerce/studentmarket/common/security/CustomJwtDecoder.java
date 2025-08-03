@@ -6,7 +6,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.ecommerce.studentmarket.common.authencation.dtos.IntrospectRequest;
 import com.ecommerce.studentmarket.common.authencation.dtos.IntrospectResponse;
-import com.ecommerce.studentmarket.admin.services.AdminAuthenticationService;
+import com.ecommerce.studentmarket.admin.user.services.AdminAuthenticationService;
 import com.ecommerce.studentmarket.student.user.services.StudentAuthenticationService;
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Autowired;

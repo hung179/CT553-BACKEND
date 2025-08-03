@@ -1,7 +1,7 @@
-package com.ecommerce.studentmarket.student.user.exceptions;
+package com.ecommerce.studentmarket.student.store.exceptions;
 
-public class StudentAlreadyExistsException extends StudentException {
-        public StudentAlreadyExistsException(String so) {
-            super("Sinh viên với số "+ so + " đã tồn tại.");
+public class StoreAlreadyExistsException extends StoreException {
+        public StoreAlreadyExistsException(String so) {
+            super("Mã sở hữu gian hàng "+ so + " đã tồn tại.");
         }
 }

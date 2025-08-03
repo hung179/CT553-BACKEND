@@ -1,9 +1,9 @@
-package com.ecommerce.studentmarket.product.category.exceptions;
+package com.ecommerce.studentmarket.order.exceptions;
 
-import com.ecommerce.studentmarket.product.item.exceptions.ProductException;
+import com.ecommerce.studentmarket.product.category.exceptions.CategoryException;
 
-public class CategoryNotFoundException extends CategoryException {
-    public CategoryNotFoundException(Long maDM){
-        super("Không tìm danh mục với mã: " + maDM);
+public class OrderNotFoundException extends OrderException {
+    public OrderNotFoundException(Long maDH){
+        super("Không tìm thấy đơn hàng với mã: " + maDH);
     }
 }

@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.admin.domains;
+package com.ecommerce.studentmarket.admin.user.domains;
 
 
 import jakarta.persistence.Entity;

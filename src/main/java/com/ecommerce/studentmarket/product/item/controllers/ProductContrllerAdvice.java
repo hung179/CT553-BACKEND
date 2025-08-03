@@ -1,10 +1,10 @@
-package com.ecommerce.studentmarket.product.items.controllers;
+package com.ecommerce.studentmarket.product.item.controllers;
 
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponseType;
-import com.ecommerce.studentmarket.product.items.exceptions.ProductAlreadyDeletedException;
-import com.ecommerce.studentmarket.product.items.exceptions.ProductAlreadyExistsException;
-import com.ecommerce.studentmarket.product.items.exceptions.ProductNotFoundException;
+import com.ecommerce.studentmarket.product.item.exceptions.ProductAlreadyDeletedException;
+import com.ecommerce.studentmarket.product.item.exceptions.ProductAlreadyExistsException;
+import com.ecommerce.studentmarket.product.item.exceptions.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

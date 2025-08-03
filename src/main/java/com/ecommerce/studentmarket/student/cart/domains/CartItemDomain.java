@@ -1,6 +1,6 @@
 package com.ecommerce.studentmarket.student.cart.domains;
 
-import com.ecommerce.studentmarket.product.dtos.ProductDtoRespone;
+import com.ecommerce.studentmarket.product.item.dtos.ProductResponseDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -28,5 +28,5 @@ public class CartItemDomain {
     private Integer soLuong = 1;
 
     @Transient
-    private ProductDtoRespone sanPham;
+    private ProductResponseDto sanPham;
 }

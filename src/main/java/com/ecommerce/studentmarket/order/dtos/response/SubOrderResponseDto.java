@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.order.dtos.request;
+package com.ecommerce.studentmarket.order.dtos.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,10 +9,13 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class SubOrderRequestDto {
+public class SubOrderResponseDto {
+
+    private Long maDHC;
 
     private Long maGianHangDHC;
 
-    private List<OrderItemRequestDto> orderItem;
+    private OrderStateResponseDto orderState;
 
+    private List<OrderItemResponseDto> orderItems;
 }

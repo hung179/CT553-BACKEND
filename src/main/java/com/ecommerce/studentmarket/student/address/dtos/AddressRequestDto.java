@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddressResponseDto {
-    private Long maDC;
+public class AddressRequestDto {
 
     private String tinhDC;
 

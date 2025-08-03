@@ -1,8 +1,8 @@
-package com.ecommerce.studentmarket.product.items.controllers;
+package com.ecommerce.studentmarket.product.item.controllers;
 
 
-import com.ecommerce.studentmarket.product.items.dtos.ProductDto;
-import com.ecommerce.studentmarket.product.items.services.ProductService;
+import com.ecommerce.studentmarket.product.item.dtos.ProductRequestDto;
+import com.ecommerce.studentmarket.product.item.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,23 +50,33 @@ public class ProductController {
         return ResponseEntity.ok(productService.searchProductByName(maGHDT, tenSP, page, size));
     }
 
+    @GetMapping("/search/seller/{maGHDT}")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
+    public ResponseEntity<?> searchProductByNameAndMaGHDT(
+            @PathVariable Long maGHDT,
+            @RequestParam String tenSP,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ){
+        return ResponseEntity.ok(productService.searchProductByNameAndMaGHSH(maGHDT, tenSP, page, size));
+    }
+
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    Còn phải tạo thêm khởi tạo gian hàng sở hữu cho sinh viên trước khi phân quyền ở đây
     public ResponseEntity<?> createProduct(
-            @RequestPart("productDto") ProductDto productDto,
+            @RequestPart("productDto") ProductRequestDto productRequestDto,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ){
-        return ResponseEntity.ok(productService.createProduct(productDto, files));
+        return ResponseEntity.ok(productService.createProduct(productRequestDto, files));
     }
 
 
     @PatchMapping("/update/{maSP}")
     public ResponseEntity<?> updateProduct(
             @PathVariable Long maSP,
-            @RequestPart ProductDto productDto,
+            @RequestPart ProductRequestDto productRequestDto,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ){
-        return ResponseEntity.ok(productService.updateProduct(maSP, productDto, files));
+        return ResponseEntity.ok(productService.updateProduct(maSP, productRequestDto, files));
     }
 
     @PostMapping("/disappear/{maSP}")

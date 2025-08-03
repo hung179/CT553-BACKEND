@@ -1,7 +1,9 @@
-package com.ecommerce.studentmarket.product.item.exceptions;
+package com.ecommerce.studentmarket.product.category.exceptions;
 
-public class ProductAlreadyExistsException extends ProductException{
-    public ProductAlreadyExistsException(Long maSP) {
-        super("Sản phẩm với mã " + maSP + " đã tồn tại");
+import com.ecommerce.studentmarket.product.item.exceptions.ProductException;
+
+public class CategoryAlreadyExistsException extends CategoryException {
+    public CategoryAlreadyExistsException(String tenDM) {
+        super("Danh mục với mã " + tenDM + " đã tồn tại");
     }
 }

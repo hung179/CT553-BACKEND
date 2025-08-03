@@ -1,11 +1,11 @@
-package com.ecommerce.studentmarket.admin.services;
+package com.ecommerce.studentmarket.admin.user.services;
 
-import com.ecommerce.studentmarket.admin.domains.AdminDomain;
-import com.ecommerce.studentmarket.admin.domains.AdminInvalidatedTokenDomain;
-import com.ecommerce.studentmarket.admin.exceptions.AdminNotFoundException;
+import com.ecommerce.studentmarket.admin.user.domains.AdminDomain;
+import com.ecommerce.studentmarket.admin.user.domains.AdminInvalidatedTokenDomain;
+import com.ecommerce.studentmarket.admin.user.exceptions.AdminNotFoundException;
 import com.ecommerce.studentmarket.common.authencation.exceptions.UnauthenticatedException;
-import com.ecommerce.studentmarket.admin.repositories.AdminRepository;
-import com.ecommerce.studentmarket.admin.repositories.AdminInvalidatedTokenRepository;
+import com.ecommerce.studentmarket.admin.user.repositories.AdminRepository;
+import com.ecommerce.studentmarket.admin.user.repositories.AdminInvalidatedTokenRepository;
 import com.ecommerce.studentmarket.common.authencation.dtos.*;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;

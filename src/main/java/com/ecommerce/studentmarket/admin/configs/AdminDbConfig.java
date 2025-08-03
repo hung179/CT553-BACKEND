@@ -18,7 +18,8 @@ import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = {"com.ecommerce.studentmarket.admin.repositories"},
+        basePackages = {"com.ecommerce.studentmarket.admin.user.repositories",
+                        "com.ecommerce.studentmarket.admin.systemwallet.repositories"},
         entityManagerFactoryRef = "adminEntityManagerFactory",
         transactionManagerRef = "adminTransactionManager"
 )
@@ -38,7 +39,8 @@ public class AdminDbConfig {
     ) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
-        em.setPackagesToScan("com.ecommerce.studentmarket.admin.domains");
+        em.setPackagesToScan("com.ecommerce.studentmarket.admin.user.domains",
+                             "com.ecommerce.studentmarket.admin.systemwallet.domains");
         em.setPersistenceUnitName("admin");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();

@@ -1,6 +1,8 @@
-package com.ecommerce.studentmarket.product.items.domains;
+package com.ecommerce.studentmarket.product.item.domains;
 
 
+import com.ecommerce.studentmarket.product.category.domains.CategoryDomain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,7 +25,7 @@ public class ProductDomain {
     @SequenceGenerator(
             name = "productSeq",
             sequenceName = "productIdSeq",
-            allocationSize = 1
+            allocationSize = 1000000
     )
     private Long maSP;
 
@@ -53,4 +55,9 @@ public class ProductDomain {
     private Boolean daXoa = false;
 
     private List<Long> imageIds;
+
+    @ManyToOne
+    @JoinColumn(name = "maDM", referencedColumnName = "maDM")
+    @JsonIgnore
+    private CategoryDomain category;
 }

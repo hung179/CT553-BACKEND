@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.product.items.configs;
+package com.ecommerce.studentmarket.product.configs;
 
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +18,8 @@ import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.ecommerce.studentmarket.product.repositories",
+        basePackages = {"com.ecommerce.studentmarket.product.item.repositories",
+                        "com.ecommerce.studentmarket.product.category.repositories"},
         entityManagerFactoryRef = "productEntityManagerFactory",
         transactionManagerRef = "productTransactionManager"
 )
@@ -35,7 +36,8 @@ public class ProductDbConfig {
     ) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
-        em.setPackagesToScan("com.ecommerce.studentmarket.product.domains");
+        em.setPackagesToScan("com.ecommerce.studentmarket.product.item.domains",
+                "com.ecommerce.studentmarket.product.category.domains"  );
         em.setPersistenceUnitName("product");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();

@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.common.paypal.configs;
+package com.ecommerce.studentmarket.student.configs;
 
 import com.paypal.base.rest.APIContext;
 import org.springframework.beans.factory.annotation.Value;
