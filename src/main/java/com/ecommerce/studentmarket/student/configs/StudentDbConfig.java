@@ -1,4 +1,5 @@
-package com.ecommerce.studentmarket.product.items.configs;
+package com.ecommerce.studentmarket.student.configDb;
+
 
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,25 +19,29 @@ import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.ecommerce.studentmarket.product.repositories",
-        entityManagerFactoryRef = "productEntityManagerFactory",
-        transactionManagerRef = "productTransactionManager"
+        basePackages = {"com.ecommerce.studentmarket.student.user.repositories",
+                        "com.ecommerce.studentmarket.student.cart.repositories",
+                        "com.ecommerce.studentmarket.student.store.repositories"},
+        entityManagerFactoryRef = "studentEntityManagerFactory",
+        transactionManagerRef = "studentTransactionManager"
 )
-public class ProductDbConfig {
+public class StudentDbConfig {
     @Bean
-    @ConfigurationProperties("spring.datasource.product-db")
-    public DataSource productDataSource() {
+    @ConfigurationProperties(prefix = "spring.datasource.student-db")
+    public DataSource studentDataSource() {
         return DataSourceBuilder.create().build();
     }
 
-    @Bean(name = "productEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean productEntityManagerFactory(
-            @Qualifier("productDataSource") DataSource dataSource
+    @Bean(name = "studentEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean studentEntityManagerFactory(
+            @Qualifier("studentDataSource") DataSource dataSource
     ) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
-        em.setPackagesToScan("com.ecommerce.studentmarket.product.domains");
-        em.setPersistenceUnitName("product");
+        em.setPackagesToScan("com.ecommerce.studentmarket.student.user.domains",
+                            "com.ecommerce.studentmarket.student.cart.domains",
+                            "com.ecommerce.studentmarket.student.store.domains");
+        em.setPersistenceUnitName("student");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
@@ -50,9 +55,9 @@ public class ProductDbConfig {
         return em;
     }
 
-    @Bean(name = "productTransactionManager")
-    public PlatformTransactionManager productTransactionManager(
-            @Qualifier("productEntityManagerFactory") EntityManagerFactory factory
+    @Bean
+    public PlatformTransactionManager studentTransactionManager(
+            @Qualifier("studentEntityManagerFactory") EntityManagerFactory factory
     ) {
         return new JpaTransactionManager(factory);
     }
