@@ -1,5 +1,7 @@
 package com.ecommerce.studentmarket.product.item.services;
 
+import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
+import com.ecommerce.studentmarket.common.apiconfig.ApiResponseType;
 import com.ecommerce.studentmarket.common.cloudinary.domains.ImageDomain;
 import com.ecommerce.studentmarket.common.cloudinary.enums.ChuSoHuu;
 import com.ecommerce.studentmarket.common.cloudinary.enums.LoaiAnh;
@@ -12,6 +14,7 @@ import com.ecommerce.studentmarket.product.item.dtos.ProductRequestDto;
 import com.ecommerce.studentmarket.product.item.dtos.ProductResponseDto;
 import com.ecommerce.studentmarket.product.item.exceptions.ProductAlreadyDeletedException;
 import com.ecommerce.studentmarket.product.item.exceptions.ProductNotFoundException;
+import com.ecommerce.studentmarket.product.item.exceptions.ProductOutOfStockException;
 import com.ecommerce.studentmarket.product.item.repositories.ProductRepository;
 import com.ecommerce.studentmarket.student.user.dtos.StudentResponseDto;
 import com.ecommerce.studentmarket.student.user.services.StudentService;
@@ -253,5 +256,39 @@ public class ProductService {
 
 
         return dto;
+    }
+
+
+    public Long getNumberOfProduct() {
+        return (long) productRepository.findAll().size();
+    }
+
+    //Giảm số lượng sản phẩm
+    public ApiResponse decreaseNumberOfProduct(Long maSP, Long soLuong){
+        ProductDomain product = productRepository.findById(maSP).orElseThrow(
+                () -> new ProductNotFoundException(maSP)
+        );
+        Long productQuantity = product.getSoLuong();
+        if (productQuantity < soLuong){
+            throw new ProductOutOfStockException(product.getTenSP(), soLuong);
+        }
+        product.setSoLuong( productQuantity - soLuong);
+
+        productRepository.save(product);
+
+        return new ApiResponse("Giảm số lượng sản phẩm thành công", true, ApiResponseType.SUCCESS);
+    }
+
+    //Hoàn trả số lượng sản phẩm (Khách hàng hoàn trả)
+    public ApiResponse increaseNumberOfProduct(Long maSP, Long soLuong){
+        ProductDomain product = productRepository.findById(maSP).orElseThrow(
+                () -> new ProductNotFoundException(maSP)
+        );
+        Long productQuantity = product.getSoLuong() + soLuong;
+        product.setSoLuong( productQuantity);
+
+        productRepository.save(product);
+
+        return new ApiResponse("Hoàn trả số lượng sản phẩm thành công", true, ApiResponseType.SUCCESS);
     }
 }

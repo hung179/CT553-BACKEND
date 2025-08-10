@@ -24,4 +24,6 @@ public class OrderRequestDto {
 
     @Valid
     private List<SubOrderRequestDto> subOrder;
+
+    private AddressOrderRequestDto addressOrderRequest;
 }

@@ -1,5 +1,5 @@
 package com.ecommerce.studentmarket.student.ewallet.enums;
 
 public enum TrangThaiGiaoDich {
-    CHUATHANHTOAN, DATHANHTOAN
+    CHUATHANHTOAN, DATHANHTOAN, DANGXULY
 }

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,12 +17,13 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = "systemWallet")
 @Entity
 @Table(name = "GIAO_DICH_HE_THONG")
 public class SystemTransactionDomain {
 
     @Id
-    @NotNull(message = "Mã giao dịch không được để trống")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long maGDHT;
 
     @NotNull(message = "Số tiền giao dịch không được để trống")

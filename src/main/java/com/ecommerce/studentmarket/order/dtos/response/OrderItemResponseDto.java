@@ -19,6 +19,5 @@ public class OrderItemResponseDto {
 
     private BigDecimal giaSP;
 
-
-
+    private Long soLuong;
 }

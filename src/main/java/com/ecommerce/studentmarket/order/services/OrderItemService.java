@@ -30,6 +30,7 @@ public class OrderItemService {
 
         Optional.of(orderItemId).ifPresent(orderItemResponseDto::setOrderItemId);
         Optional.ofNullable(orderItemDomain.getGiaSP()).ifPresent(orderItemResponseDto::setGiaSP);
+        Optional.ofNullable(orderItemDomain.getSoLuong()).ifPresent(orderItemResponseDto::setSoLuong);
 
         return orderItemResponseDto;
     }
@@ -44,25 +45,25 @@ public class OrderItemService {
         return orderItemIdResponseDto;
     }
 
-    public OrderItemDomain convertToOrderItemDomain(OrderItemRequestDto itemDto) {
+    public OrderItemDomain convertToOrderItemDomain(OrderItemRequestDto itemDto, Long maDH) {
 
         OrderItemDomain orderItemDomain = new OrderItemDomain();
-
         Optional.ofNullable(itemDto.getGiaSP()).ifPresent(orderItemDomain::setGiaSP);
+        Optional.ofNullable(itemDto.getSoLuong()).ifPresent(orderItemDomain::setSoLuong);
 
         if (itemDto.getOrderItemId() == null) {
             throw new IllegalArgumentException("OrderItemId không được null");
         }
-        OrderItemIdDomain orderItemIdDomain = convertToOrderItemIdDomain(itemDto.getOrderItemId());
+        OrderItemIdDomain orderItemIdDomain = convertToOrderItemIdDomain(itemDto.getOrderItemId(), maDH);
         orderItemDomain.setMaCTDH(orderItemIdDomain);
 
         return orderItemDomain;
     }
 
-    public OrderItemIdDomain convertToOrderItemIdDomain(OrderItemIdRequestDto itemId){
+    public OrderItemIdDomain convertToOrderItemIdDomain(OrderItemIdRequestDto itemId, Long maDH){
         OrderItemIdDomain orderItemIdDomain = new OrderItemIdDomain();
 
-        Optional.ofNullable(itemId.getMaDH()).ifPresent(orderItemIdDomain::setMaDH);
+        Optional.ofNullable(maDH).ifPresent(orderItemIdDomain::setMaDH);
         Optional.ofNullable(itemId.getMaSP()).ifPresent(orderItemIdDomain::setMaSP);
 
         return orderItemIdDomain;

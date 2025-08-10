@@ -29,6 +29,12 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProduct(maGHDT, page, size));
     }
 
+    @GetMapping("numberProduct")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
+    public ResponseEntity<?> getNumberOfProduct() {
+        return ResponseEntity.ok(productService.getNumberOfProduct());
+    }
+
     @GetMapping("/{maSP}")
     @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> getProductById(

@@ -20,4 +20,6 @@ public class OrderItemRequestDto {
     @Min(value = 1, message = "Giá sản phẩm phải lớn hơn 0")
     private BigDecimal giaSP;
 
+    @Min(value = 1, message = "Số lượng sản phẩm phải lớn hơn 0")
+    private Long soLuong;
 }

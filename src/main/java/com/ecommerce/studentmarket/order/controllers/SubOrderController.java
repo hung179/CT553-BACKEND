@@ -11,6 +11,31 @@ public class SubOrderController {
     @Autowired
     private SubOrderService subOrderService;
 
+    @GetMapping("getAll")
+    public ResponseEntity<?> getAllSubOrders(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size){
+        return ResponseEntity.ok(subOrderService.getAllSubOrders(page, size));
+    }
+
+    @GetMapping("XacNhanById/{maGianHangDHC}")
+    public  ResponseEntity<?> getSubOrdersByMaGianHangAndDaNhan(
+            @PathVariable Long maGianHangDHC,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "8") Integer size
+    ){
+        return ResponseEntity.ok(subOrderService.getSubOrdersByMaGianHangAndDaNhan(maGianHangDHC, page, size));
+    }
+
+    @GetMapping("byId/{maGianHangDHC}")
+    public  ResponseEntity<?> getSubOrdersByMaGianHang(
+            @PathVariable Long maGianHangDHC,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "8") Integer size
+            ){
+        return ResponseEntity.ok(subOrderService.getSubOrdersByMaGianHang(maGianHangDHC, page, size));
+    }
+
     @PostMapping("xacNhan/{maDHC}")
     public ResponseEntity<?> changeOrderStateToXacNhan(
             @PathVariable Long maDHC){
@@ -42,4 +67,14 @@ public class SubOrderController {
             @PathVariable Long maDHC){
         return ResponseEntity.ok(subOrderService.changeOrderStateToDaHoanTien(maDHC));
     }
+
+    @GetMapping("filter")
+    public ResponseEntity<?> filterByTrangThai(
+            @RequestParam String trangThai,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ){
+        return ResponseEntity.ok(subOrderService.getSubOrdersByTrangThai(trangThai, page, size));
+    }
+
 }

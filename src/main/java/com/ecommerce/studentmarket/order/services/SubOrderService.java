@@ -11,6 +11,7 @@ import com.ecommerce.studentmarket.order.dtos.response.OrderStateResponseDto;
 import com.ecommerce.studentmarket.order.dtos.response.SubOrderResponseDto;
 import com.ecommerce.studentmarket.order.repositories.OrderStateRepository;
 import com.ecommerce.studentmarket.order.repositories.SubOrderRepository;
+import com.ecommerce.studentmarket.product.item.services.ProductService;
 import com.ecommerce.studentmarket.student.ewallet.dtos.TransactionRequestDto;
 import com.ecommerce.studentmarket.student.ewallet.enums.LoaiGiaoDich;
 import com.ecommerce.studentmarket.student.ewallet.enums.TrangThaiGiaoDich;
@@ -18,6 +19,9 @@ import com.ecommerce.studentmarket.student.ewallet.services.PaymentService;
 import com.ecommerce.studentmarket.student.store.domains.StoreDomain;
 import com.ecommerce.studentmarket.student.store.repositories.StoreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +49,17 @@ public class SubOrderService {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private ProductService productService;
+
+    @Transactional(readOnly = true)
+    public Page<SubOrderResponseDto> getAllSubOrders(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<SubOrderDomain> subOrderDomains = subOrderRepository.findAll(pageable);
+
+        return subOrderDomains.map(this::convertToSubOrderResponseDto);
+    }
 
     public SubOrderResponseDto convertToSubOrderResponseDto(SubOrderDomain subOrderDomain){
         SubOrderResponseDto subOrderResponseDto = new SubOrderResponseDto();
@@ -81,11 +96,21 @@ public class SubOrderService {
 
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public ApiResponse changeOrderStateToXacNhan(Long maDHC){
+
+        SubOrderDomain subOrderDomain = subOrderRepository.findByIdWithItems(maDHC)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng con"));
+
+
         OrderStateDomain newOrderState = orderStateRepository.findBySubOrder_MaDHC(maDHC);
 
         newOrderState.setXacNhanTTDH(LocalDateTime.now());
 
+        for (OrderItemDomain item : subOrderDomain.getItems()) {
+            productService.decreaseNumberOfProduct(item.getMaCTDH().getMaSP(), item.getSoLuong());
+        }
+        orderStateRepository.save(newOrderState);
         return new ApiResponse("Cập nhật trạng thái xác nhận thành công.", true, ApiResponseType.SUCCESS);
     }
 
@@ -93,6 +118,7 @@ public class SubOrderService {
         OrderStateDomain newOrderState = orderStateRepository.findBySubOrder_MaDHC(maDHC);
 
         newOrderState.setDangGiaoTTDH(LocalDateTime.now());
+        orderStateRepository.save(newOrderState);
 
         return new ApiResponse("Cập nhật trạng thái đang giao thành công.", true, ApiResponseType.SUCCESS);
     }
@@ -101,6 +127,7 @@ public class SubOrderService {
         OrderStateDomain newOrderState = orderStateRepository.findBySubOrder_MaDHC(maDHC);
 
         newOrderState.setDaGiaoTTDH(LocalDateTime.now());
+        orderStateRepository.save(newOrderState);
 
         return new ApiResponse("Cập nhật trạng thái đã giao thành công.", true, ApiResponseType.SUCCESS);
     }
@@ -123,6 +150,7 @@ public class SubOrderService {
         TransactionRequestDto transactionRequest = convertToTransactionRequestDto(subOrder, newOrderState.getDaNhanTTDH());
 
         paymentService.receivePaymentForSeller(store.getStudent().getMssv(), transactionRequest);
+        orderStateRepository.save(newOrderState);
 
         return new ApiResponse("Cập nhật trạng thái đã hủy thành công.", true, ApiResponseType.SUCCESS);
     }
@@ -154,6 +182,15 @@ public BigDecimal calculateTotalItemPrice(List<OrderItemDomain> items) {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 }
 
+
+    public Page<SubOrderResponseDto> getSubOrdersByMaGianHang(Long maGianHangDHC, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<SubOrderDomain> subOrders = subOrderRepository.findByMaGianHangDHC(maGianHangDHC, pageable);
+
+        return subOrders.map(this::convertToSubOrderResponseDto);
+    }
+
     public ApiResponse changeOrderStateToDaHuy(Long maDHC) {
         OrderStateDomain newOrderState = orderStateRepository.findBySubOrder_MaDHC(maDHC);
 
@@ -179,23 +216,77 @@ public BigDecimal calculateTotalItemPrice(List<OrderItemDomain> items) {
         return new ApiResponse("Cập nhật trạng thái 'Đã hủy' thành công.", true, ApiResponseType.SUCCESS);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public ApiResponse changeOrderStateToDaHoanTien(Long maDHC){
+
+        SubOrderDomain subOrderDomain = subOrderRepository.findByIdWithItems(maDHC)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng con"));
+
+
         OrderStateDomain newOrderState = orderStateRepository.findBySubOrder_MaDHC(maDHC);
 
         newOrderState.setDaHoanTienTTDH(LocalDateTime.now());
 
+        for (OrderItemDomain item : subOrderDomain.getItems()) {
+            productService.decreaseNumberOfProduct(item.getMaCTDH().getMaSP(), item.getSoLuong());
+        }
+
+        orderStateRepository.save(newOrderState);
+
         return new ApiResponse("Cập nhật trạng thái đã hoàn tiền thành công.", true, ApiResponseType.SUCCESS);
     }
 
-    public SubOrderDomain convertToSubOrderDomain(SubOrderRequestDto subDto) {
+    public Page<SubOrderResponseDto> getSubOrdersByMaGianHangAndDaNhan(Long maGianHangDHC, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<SubOrderDomain> subOrders = subOrderRepository.findChoDuyetByMaGianHangDHC(maGianHangDHC,pageable);
+
+        return subOrders.map(this::convertToSubOrderResponseDto);
+    }
+
+    public Page<SubOrderResponseDto> getSubOrdersByTrangThai(String trangThai, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return switch (trangThai) {
+            case "CHO_DUYET" -> {
+                Page<SubOrderDomain> subOrderDomains = subOrderRepository.findAllChoDuyet(pageable);
+                yield subOrderDomains.map(this::convertToSubOrderResponseDto);
+            }
+            case "XAC_NHAN" -> {
+                Page<SubOrderDomain> subOrderDomains = subOrderRepository.findAllXacNhan(pageable);
+                yield subOrderDomains.map(this::convertToSubOrderResponseDto);
+            }
+            case "DANG_GIAO" -> {
+                Page<SubOrderDomain> subOrderDomains = subOrderRepository.findAllDangGiao(pageable);
+                yield subOrderDomains.map(this::convertToSubOrderResponseDto);
+            }
+            case "DA_GIAO" -> {
+                Page<SubOrderDomain> subOrderDomains = subOrderRepository.findAllDaGiao(pageable);
+                yield subOrderDomains.map(this::convertToSubOrderResponseDto);
+            }
+            case "DA_NHAN" -> {
+                Page<SubOrderDomain> subOrderDomains = subOrderRepository.findAllDaNhan(pageable);
+                yield subOrderDomains.map(this::convertToSubOrderResponseDto);
+            }
+            case "DA_HUY" -> {
+                Page<SubOrderDomain> subOrderDomains = subOrderRepository.findAllDaHuy(pageable);
+                yield subOrderDomains.map(this::convertToSubOrderResponseDto);
+            }
+            case "DA_HOAN_TIEN" -> {
+                Page<SubOrderDomain> subOrderDomains = subOrderRepository.findAllDaHoanTien(pageable);
+                yield subOrderDomains.map(this::convertToSubOrderResponseDto);
+            }
+            default -> throw new IllegalArgumentException("Trạng thái không hợp lệ: " + trangThai);
+        };
+    }
+
+    public SubOrderDomain convertToSubOrderDomain(SubOrderRequestDto subDto, Long maDH) {
 
         SubOrderDomain subOrderDomain = new SubOrderDomain();
 
         Optional.ofNullable(subDto.getMaGianHangDHC()).ifPresent(subOrderDomain::setMaGianHangDHC);
 
         List<OrderItemDomain> orderItemDomains = subDto.getOrderItem().stream().map(itemDto -> {
-                OrderItemDomain orderItem = orderItemService.convertToOrderItemDomain(itemDto);
-
+                OrderItemDomain orderItem = orderItemService.convertToOrderItemDomain(itemDto, maDH);
                 orderItem.setSubOrder(subOrderDomain);
                 return orderItem;
             }).toList();
@@ -204,6 +295,7 @@ public BigDecimal calculateTotalItemPrice(List<OrderItemDomain> items) {
         OrderStateDomain orderState = new OrderStateDomain();
 
         orderState.setChoDuyetTTDH(LocalDateTime.now());
+        orderState.setSubOrder(subOrderDomain);
 
         subOrderDomain.setOrderState(orderState);
 

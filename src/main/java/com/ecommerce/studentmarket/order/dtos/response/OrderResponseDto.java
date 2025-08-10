@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -28,4 +27,6 @@ public class OrderResponseDto {
     private LocalDateTime ngayThanhToanDH;
 
     private List<SubOrderResponseDto> subOrder;
+
+    private AddressOrderResponseDto addressResponseDto;
 }

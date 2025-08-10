@@ -23,7 +23,7 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"admin/auth/*", "students/auth/*", "payments/*"};
+    private final String[] PUBLIC_ENDPOINTS = {"admin/auth/*", "students/auth/*", "payments/*", "paypal/webhook"};
 
     @Value("${jwt.signer-key}")
     private String signerKey;

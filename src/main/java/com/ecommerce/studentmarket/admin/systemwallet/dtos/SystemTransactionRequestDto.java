@@ -37,6 +37,8 @@ public class SystemTransactionRequestDto {
     @Size(max = 255, message = "Chi tiết giao dịch không được vượt quá 255 ký tự")
     private String chiTietGDHT;
 
+    private String idGiaoDichHT;
+
     private String mssvGDHT;
 
     private String hoTenSVGDHT;

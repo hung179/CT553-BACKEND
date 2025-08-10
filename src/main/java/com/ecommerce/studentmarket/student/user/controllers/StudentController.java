@@ -35,11 +35,16 @@ public class StudentController {
         return ResponseEntity.ok(studentService.searchStudentByName(tenSV, page, size));
     }
 
+    @GetMapping("storeId/{maGHDT}")
+    public ResponseEntity<?>getStudentByStoreId(@PathVariable Long maGHDT){
+        return ResponseEntity.ok(studentService.getStudentByStoreId(maGHDT));
+    }
+
     @GetMapping("/all")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<?> getAllStudent(
-            @RequestParam Integer page,
-            @RequestParam Integer size
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
     ){
             return ResponseEntity.ok(studentService.getAllStudent(page, size));
     }

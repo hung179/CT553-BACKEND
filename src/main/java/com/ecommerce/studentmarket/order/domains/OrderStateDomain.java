@@ -42,7 +42,7 @@ public class OrderStateDomain {
 
     @OneToOne
     @JoinColumn(name = "maDHC")
-    @NotNull(message = "Trạng thái đơn hàng trong đơn hàng con không được null")
+    @NotNull(message = "Đơn hàng con trong trạng thái đơn hàng con không được null")
     @JsonIgnore
     private SubOrderDomain subOrder;
 

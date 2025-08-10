@@ -71,7 +71,7 @@ public class PaymentService {
 
         ewalletRepository.save(ewalletDomain);
 
-        TransactionDomain newTransaction = transactionRepository.findByIdGiaoDich(transactionDomain.getIdGiaoDich());
+        TransactionDomain newTransaction = transactionRepository.findByIdGiaoDich(transactionDomain.getIdGiaoDich()).getFirst();
 
         SystemTransactionRequestDto systemTransactionRequestDto = convertToSystemTransactionRequestDto(newTransaction, ewalletDomain.getStudent().getMssv(), ewalletDomain.getStudent().getHoTen());
 
@@ -119,6 +119,8 @@ public class PaymentService {
 @Transactional(rollbackFor = Exception.class)
 public ApiResponse handlePayTheOrder(String mssv, TransactionRequestDto transactionRequestDto) {
 
+    validateSufficientBalance(mssv, transactionRequestDto.getSoTienGD());
+
     EwalletDomain ewalletDomain = ewalletRepository.findByStudent_Mssv(mssv);
 
     BigDecimal totalCoin = ewalletDomain.getSoDuVDT();
@@ -131,10 +133,6 @@ public ApiResponse handlePayTheOrder(String mssv, TransactionRequestDto transact
 
     // Tổng tiền cần trừ = tiền hàng + chiết khấu
     BigDecimal tongTienCanTru = soTienGiaoDich.add(chietKhau);
-
-    if (totalCoin.compareTo(tongTienCanTru) < 0) {
-        throw new RuntimeException("Không đủ số dư ví, cần nạp thêm");
-    }
 
     // Trừ tiền khỏi ví người mua
     totalCoin = totalCoin.subtract(tongTienCanTru);
@@ -154,20 +152,35 @@ public ApiResponse handlePayTheOrder(String mssv, TransactionRequestDto transact
     ewalletRepository.save(ewalletDomain);
 
     // Gửi tiền chiết khấu về ví hệ thống
-    TransactionDomain newTransaction = transactionRepository.findByIdGiaoDich(transactionDomain.getIdGiaoDich());
+    List<TransactionDomain> newTransactions = transactionRepository.findByIdGiaoDich(transactionDomain.getIdGiaoDich());
 
-    SystemTransactionRequestDto systemTransactionRequestDto = convertToSystemTransactionRequestDto(
-            newTransaction, ewalletDomain.getStudent().getMssv(), ewalletDomain.getStudent().getHoTen());
+    for(TransactionDomain newTransaction : newTransactions) {
+        SystemTransactionRequestDto systemTransactionRequestDto = convertToSystemTransactionRequestDto(
+                newTransaction, ewalletDomain.getStudent().getMssv(), ewalletDomain.getStudent().getHoTen());
 
-    systemWalletService.handlePayTheOrder(chietKhau, systemTransactionRequestDto);
-
+        systemWalletService.handlePayTheOrder(chietKhau, systemTransactionRequestDto);
+    }
     return new ApiResponse("Thanh toán thành công", true, ApiResponseType.SUCCESS);
 }
 
+    public void validateSufficientBalance(String mssv, BigDecimal soTienGiaoDich){
+        EwalletDomain ewalletDomain = ewalletRepository.findByStudent_Mssv(mssv);
+
+        BigDecimal totalCoin = ewalletDomain.getSoDuVDT();
+
+        // Tính chiết khấu 10%
+        BigDecimal chietKhau = soTienGiaoDich.multiply(BigDecimal.valueOf(0.10));
+
+        BigDecimal tongTienCanTru = soTienGiaoDich.add(chietKhau);
+
+        if (totalCoin.compareTo(tongTienCanTru) < 0) {
+            throw new RuntimeException("Không đủ số dư ví, cần nạp thêm");
+        }
+    }
 
     //    Xác nhận chuyển hàng và nhận tiền cho người bán
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse receivePaymentForSeller(String mssv, TransactionRequestDto transactionRequestDto) {
+    public void receivePaymentForSeller(String mssv, TransactionRequestDto transactionRequestDto) {
 
         EwalletDomain ewalletDomain = ewalletRepository.findByStudent_Mssv(mssv);
 
@@ -193,15 +206,82 @@ public ApiResponse handlePayTheOrder(String mssv, TransactionRequestDto transact
         ewalletDomain.getTransactions().add(transactionDomain);
         ewalletRepository.save(ewalletDomain);
 
-        return new ApiResponse("Người bán đã nhận tiền thành công", true, ApiResponseType.SUCCESS);
+        new ApiResponse("Người bán đã nhận tiền thành công", true, ApiResponseType.SUCCESS);
     }
 
-
+//Lấy thông tin ví điện tử
     public EwalletResponseDto getEwalletInfo(String mssv) {
 
         EwalletDomain ewalletDomain = ewalletRepository.findByStudent_Mssv(mssv);
 
         return convertToEwalletResponseDto(ewalletDomain);
+
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void withdrawFromEwallet(String mssv, BigDecimal soTienRut, String paypalEmail, String batchId) {
+
+        // 1. Kiểm tra số dư
+        EwalletDomain ewalletDomain = ewalletRepository.findByStudent_Mssv(mssv);
+        BigDecimal currentBalance = ewalletDomain.getSoDuVDT();
+
+        if (currentBalance.compareTo(soTienRut) < 0) {
+            throw new RuntimeException("Số dư không đủ để rút tiền");
+        }
+
+        // 2. Tính phí rút (nếu có) — ví dụ 5%
+        BigDecimal phiRut = soTienRut.multiply(BigDecimal.valueOf(0.05));
+        BigDecimal tongTru = soTienRut.add(phiRut);
+
+        if (currentBalance.compareTo(tongTru) < 0) {
+            throw new RuntimeException("Số dư không đủ để rút tiền sau khi tính phí");
+        }
+
+        // 3. Gọi API PayPal Payouts (nếu tích hợp)
+        // Bạn cần có service PaypalPayoutService để thực hiện chuyển tiền
+        // paypalPayoutService.sendPayout(paypalEmail, soTienRut);
+
+        // 4. Trừ tiền khỏi ví
+        ewalletDomain.setSoDuVDT(currentBalance.subtract(tongTru));
+
+        // 5. Lưu giao dịch
+        TransactionDomain transactionDomain = new TransactionDomain();
+        transactionDomain.setSoTienGD(soTienRut);
+        transactionDomain.setLoaiGD(LoaiGiaoDich.RUTTIEN);
+        transactionDomain.setThoiGianGD(LocalDateTime.now());
+        transactionDomain.setTrangThaiGD(TrangThaiGiaoDich.DANGXULY);
+        transactionDomain.setIdGiaoDich(batchId);
+        transactionDomain.setChiTietGD("Rút tiền về PayPal: " + paypalEmail);
+        transactionDomain.setWallet(ewalletDomain);
+
+        ewalletDomain.getTransactions().add(transactionDomain);
+        ewalletRepository.save(ewalletDomain);
+
+        // 6. (Tuỳ chọn) Lưu phí vào ví hệ thống
+        if (phiRut.compareTo(BigDecimal.ZERO) > 0) {
+            SystemTransactionRequestDto feeTransaction = new SystemTransactionRequestDto();
+            feeTransaction.setSoTienGDHT(phiRut);
+            feeTransaction.setLoaiGDHT(LoaiGiaoDich.PHITHANHTOAN);
+            feeTransaction.setThoiGianGDHT(LocalDateTime.now());
+            feeTransaction.setTrangThaiGDHT(TrangThaiGiaoDich.DANGXULY);
+            feeTransaction.setChiTietGDHT("Phí rút tiền từ " + mssv);
+            feeTransaction.setMssvGDHT(mssv);
+            feeTransaction.setHoTenSVGDHT(ewalletDomain.getStudent().getHoTen());
+            feeTransaction.setIdGiaoDichHT(batchId);
+
+            systemWalletService.handleWithdrawFee(phiRut, feeTransaction);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateTransactionByBatchId(String payoutBatchId, TrangThaiGiaoDich trangThaiGiaoDich){
+        TransactionDomain transactionDomain = transactionRepository.findByIdGiaoDich(payoutBatchId).getFirst();
+
+        transactionDomain.setTrangThaiGD(trangThaiGiaoDich);
+
+        transactionRepository.save(transactionDomain);
+
+        systemWalletService.updateSystemTransactionByBatchId(payoutBatchId, trangThaiGiaoDich);
 
     }
 
@@ -239,7 +319,6 @@ public ApiResponse handlePayTheOrder(String mssv, TransactionRequestDto transact
 
         SystemTransactionRequestDto transactionRequestDto = new SystemTransactionRequestDto();
 
-        Optional.ofNullable(transactionDomain.getMaGD()).ifPresent(transactionRequestDto::setMaGDHT);
         Optional.ofNullable(transactionDomain.getSoTienGD()).ifPresent(transactionRequestDto::setSoTienGDHT);
         Optional.ofNullable(transactionDomain.getLoaiGD()).ifPresent(transactionRequestDto::setLoaiGDHT);
         Optional.ofNullable(transactionDomain.getThoiGianGD()).ifPresent(transactionRequestDto::setThoiGianGDHT);

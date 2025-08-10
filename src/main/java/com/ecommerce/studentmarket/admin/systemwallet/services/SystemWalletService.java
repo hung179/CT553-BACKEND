@@ -7,6 +7,7 @@ import com.ecommerce.studentmarket.admin.systemwallet.dtos.SystemTransactionResp
 import com.ecommerce.studentmarket.admin.systemwallet.dtos.SystemWalletResponseDto;
 import com.ecommerce.studentmarket.admin.systemwallet.repositories.SystemTransactionRepository;
 import com.ecommerce.studentmarket.admin.systemwallet.repositories.SystemWalletRepository;
+import com.ecommerce.studentmarket.student.ewallet.enums.TrangThaiGiaoDich;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,9 +69,9 @@ public class SystemWalletService {
 
         SystemTransactionDomain transactionDomain = convertToSystemTransactionDomain(systemTransactionRequestDto);
 
+        transactionDomain.setMaGDHT(null);
         transactionDomain.setSystemWallet(systemWallet);
-
-        systemWallet.getTransactions().add(transactionDomain);
+        systemTransactionRepository.save(transactionDomain);
 
         systemWalletRepository.save(systemWallet);
     }
@@ -79,12 +80,12 @@ public class SystemWalletService {
 
         SystemTransactionDomain transactionDomain = new SystemTransactionDomain();
 
-        Optional.ofNullable(systemTransactionRequestDto.getMaGDHT()).ifPresent(transactionDomain::setMaGDHT);
         Optional.ofNullable(systemTransactionRequestDto.getSoTienGDHT()).ifPresent(transactionDomain::setSoTienGDHT);
         Optional.ofNullable(systemTransactionRequestDto.getLoaiGDHT()).ifPresent(transactionDomain::setLoaiGDHT);
         Optional.ofNullable(systemTransactionRequestDto.getThoiGianGDHT()).ifPresent(transactionDomain::setThoiGianGDHT);
         Optional.ofNullable(systemTransactionRequestDto.getTrangThaiGDHT()).ifPresent(transactionDomain::setTrangThaiGDHT);
         transactionDomain.setIdDonHangGDHT(systemTransactionRequestDto.getIdDonHangGDHT());
+        Optional.ofNullable(systemTransactionRequestDto.getIdGiaoDichHT()).ifPresent(transactionDomain::setIdGiaoDichHT);
         Optional.ofNullable(systemTransactionRequestDto.getChiTietGDHT()).ifPresent(transactionDomain::setChiTietGDHT);
         Optional.ofNullable(systemTransactionRequestDto.getMssvGDHT()).ifPresent(transactionDomain::setMssvGDHT);
         Optional.ofNullable(systemTransactionRequestDto.getHoTenSVGDHT()).ifPresent(transactionDomain::setHoTenSVGDHT);
@@ -116,5 +117,36 @@ public class SystemWalletService {
 
         return responseDto;
 
+    }
+
+//    Thu phí rút tiền và lưu giao dịch hệ thống
+    public void handleWithdrawFee(BigDecimal phiRut, SystemTransactionRequestDto feeTransaction) {
+        // 1. Lấy ví hệ thống
+        SystemWalletDomain systemWallet = systemWalletRepository.findTopByOrderByMaVHTAsc()
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy ví hệ thống"));
+
+        // 2. Cộng phí rút vào số dư ví hệ thống
+        BigDecimal newBalance = systemWallet.getSoDuVHT().add(phiRut);
+        systemWallet.setSoDuVHT(newBalance);
+
+        // 3. Tạo bản ghi giao dịch
+        SystemTransactionDomain transactionDomain = convertToSystemTransactionDomain(feeTransaction);
+        transactionDomain.setSystemWallet(systemWallet);
+
+        // 4. Lưu giao dịch vào repository
+        systemTransactionRepository.save(transactionDomain);
+
+        // 5. Lưu lại ví hệ thống
+        systemWalletRepository.save(systemWallet);
+    }
+
+
+    public void updateSystemTransactionByBatchId(String payoutBatchId, TrangThaiGiaoDich trangThaiGiaoDich) {
+
+        SystemTransactionDomain systemTransactionDomain = systemTransactionRepository.findByIdGiaoDichHT(payoutBatchId);
+
+        systemTransactionDomain.setTrangThaiGDHT(trangThaiGiaoDich);
+
+        systemTransactionRepository.save(systemTransactionDomain);
     }
 }

@@ -39,7 +39,7 @@ public class ProductDomain {
     @NotNull(message = "Giá sản phẩm không được để trống")
     private Long giaSP;
 
-    private Integer soLuong = 1;
+    private Long soLuong = 1L;
 
     @NotBlank(message = "Mô tả sản phẩm không được để trống")
     private String moTa;

@@ -6,11 +6,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface TransactionRepository extends JpaRepository<TransactionDomain, Long> {
     Page<TransactionDomain> findAllByWallet_MaVDT(Long maVDT, Pageable pageable);
 
     Boolean existsByIdGiaoDich(String idGiaoDich);
 
-    TransactionDomain findByIdGiaoDich(String idGiaoDich);
+    List<TransactionDomain> findByIdGiaoDich(String idGiaoDich);
+
 }

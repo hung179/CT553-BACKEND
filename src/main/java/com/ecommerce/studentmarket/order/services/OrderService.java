@@ -2,9 +2,12 @@ package com.ecommerce.studentmarket.order.services;
 
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponseType;
+import com.ecommerce.studentmarket.order.domains.AddressOrderDomain;
 import com.ecommerce.studentmarket.order.domains.OrderDomain;
 import com.ecommerce.studentmarket.order.domains.SubOrderDomain;
+import com.ecommerce.studentmarket.order.dtos.request.AddressOrderRequestDto;
 import com.ecommerce.studentmarket.order.dtos.request.OrderRequestDto;
+import com.ecommerce.studentmarket.order.dtos.response.AddressOrderResponseDto;
 import com.ecommerce.studentmarket.order.dtos.response.OrderResponseDto;
 import com.ecommerce.studentmarket.order.dtos.response.SubOrderResponseDto;
 import com.ecommerce.studentmarket.order.exceptions.OrderNotFoundException;
@@ -37,8 +40,7 @@ public class OrderService {
     private PaymentService paymentService;
 
 
-//    Lấy order theo mssv
-
+// Lấy order theo mssv
     public Page<OrderResponseDto> getAllOrderByMssv(String mssv, Integer page, Integer size){
         Pageable pageable = PageRequest.of(page, size);
 
@@ -69,7 +71,25 @@ public class OrderService {
 
         OrderDomain orderDomain = convertToOrderDomain(orderRequestDto);
 
+        orderDomain.setThoiGianThanhToanDH(LocalDateTime.now());
+
+        paymentService.validateSufficientBalance(orderDomain.getMssvDH(), orderDomain.getTongTienDH());
+
         OrderDomain newOrder = orderRepository.save(orderDomain);
+
+        List<SubOrderDomain> subOrderDomains = orderRequestDto.getSubOrder().stream().map(subDto -> {
+            SubOrderDomain sub = subOrderService.convertToSubOrderDomain(subDto, newOrder.getMaDH());
+
+            sub.setOrderDomain(newOrder);
+            return sub;
+        }).toList();
+        newOrder.setSubOrders(subOrderDomains);
+
+        if (orderRequestDto.getAddressOrderRequest() !=null) {
+            AddressOrderDomain address = convertToAddressOrderDomain(orderRequestDto.getAddressOrderRequest());
+            newOrder.setAddressOrderDomain(address);
+            address.setOrderDomain(newOrder);
+        }
 
         String chiTietGD = "Thanh toán cho đơn hàng " + newOrder.getMaDH();
 
@@ -83,6 +103,8 @@ public class OrderService {
 
         paymentService.handlePayTheOrder(newOrder.getMssvDH(), transactionRequest);
 
+        orderRepository.save(newOrder);
+
         return new ApiResponse("Tạo và thanh toán đơn hàng thành công", true, ApiResponseType.SUCCESS);
     }
 
@@ -91,22 +113,34 @@ public class OrderService {
 
         Optional.ofNullable(orderRequestDto.getMssvDH()).ifPresent(orderDomain::setMssvDH);
         Optional.ofNullable(orderRequestDto.getTongTienDH()).ifPresent(orderDomain::setTongTienDH);
+        orderDomain.setThoiGianTaoDH(LocalDateTime.now());
         Optional.ofNullable(orderRequestDto.getThanhToan()).ifPresent(orderDomain::setThanhToan);
         Optional.ofNullable(orderRequestDto.getThanhToan()).ifPresent(orderDomain::setThanhToan);
-
-        List<SubOrderDomain> subOrderDomains = orderRequestDto.getSubOrder().stream().map(subDto -> {
-            SubOrderDomain sub = subOrderService.convertToSubOrderDomain(subDto);
-
-            sub.setOrderDomain(orderDomain);
-            return sub;
-        }).toList();
-
-        orderDomain.setSubOrders(subOrderDomains);
 
         return orderDomain;
     }
 
+    private AddressOrderDomain convertToAddressOrderDomain(AddressOrderRequestDto addressRequestDto ) {
+        AddressOrderDomain addressDomain = new AddressOrderDomain();
 
+        Optional.ofNullable(addressRequestDto.getTinhDCDH()).ifPresent(addressDomain::setTinhDCDH);
+        Optional.ofNullable(addressRequestDto.getHuyenDCDH()).ifPresent(addressDomain::setHuyenDCDH);
+        Optional.ofNullable(addressRequestDto.getXaDCDH()).ifPresent(addressDomain::setXaDCDH);
+        Optional.ofNullable(addressRequestDto.getChiTietDCDH()).ifPresent(addressDomain::setChiTietDCDH);
+
+        return addressDomain;
+    }
+
+    private AddressOrderResponseDto convertToAddressResponseDto(AddressOrderDomain addressOrderDomain ) {
+        AddressOrderResponseDto addressResponseDto = new AddressOrderResponseDto();
+
+        Optional.ofNullable(addressOrderDomain.getTinhDCDH()).ifPresent(addressResponseDto::setTinhDCDH);
+        Optional.ofNullable(addressOrderDomain.getHuyenDCDH()).ifPresent(addressResponseDto::setHuyenDCDH);
+        Optional.ofNullable(addressOrderDomain.getXaDCDH()).ifPresent(addressResponseDto::setXaDCDH);
+        Optional.ofNullable(addressOrderDomain.getChiTietDCDH()).ifPresent(addressResponseDto::setChiTietDCDH);
+
+        return addressResponseDto;
+    }
 
     public OrderResponseDto convertToOrderDtoResponse(OrderDomain orderDomain){
         OrderResponseDto orderResponseDto = new OrderResponseDto();
@@ -123,6 +157,11 @@ public class OrderService {
                 .toList();
 
         Optional.of(subOrderResponseDtos).ifPresent(orderResponseDto::setSubOrder);
+
+        if (orderDomain.getAddressOrderDomain() !=null) {
+            AddressOrderResponseDto address = convertToAddressResponseDto(orderDomain.getAddressOrderDomain());
+            orderResponseDto.setAddressResponseDto(address);
+        }
 
         return orderResponseDto;
 

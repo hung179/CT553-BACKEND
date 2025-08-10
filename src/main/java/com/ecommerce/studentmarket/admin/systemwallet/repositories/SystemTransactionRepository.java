@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface SystemTransactionRepository extends JpaRepository<SystemTransactionDomain, Long> {
     Page<SystemTransactionDomain> findAllBySystemWallet_MaVHT(Long maVHT, Pageable pageable);
 
-
+    SystemTransactionDomain findByIdGiaoDichHT(String idGiaoDichHT);
 }

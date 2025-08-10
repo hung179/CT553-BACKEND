@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -40,7 +39,7 @@ public class OrderDomain {
     @NotNull(message = "Tổng số tiền đơn hàng không được để trống")
     private BigDecimal tongTienDH;
 
-    @NotBlank(message = "Trạng thái thanh toán đơn hàng không được bỏ trống")
+    @NotNull(message = "Trạng thái thanh toán đơn hàng không được bỏ trống")
     private ThanhToan thanhToan = ThanhToan.CHUATHANHTOAN;
 
     private LocalDateTime thoiGianThanhToanDH;
@@ -48,4 +47,6 @@ public class OrderDomain {
     @OneToMany(mappedBy = "orderDomain", cascade = CascadeType.ALL)
     private List<SubOrderDomain> subOrders = new ArrayList<>();
 
+    @OneToOne(mappedBy = "orderDomain", cascade = CascadeType.ALL)
+    private AddressOrderDomain addressOrderDomain;
 }

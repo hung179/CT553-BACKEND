@@ -26,7 +26,7 @@ public class ProductRequestDto {
 
     @Min(value = 0, message = "Số lượng không được âm")
     @Max(value = 99999, message = "Số lượng không được vượt quá 99,999")
-    private Integer soLuong = 1;
+    private Long soLuong = 1L;
 
     @Size(max = 50, message = "Kích thước không được vượt quá 50 ký tự")
     @Pattern(regexp = "^[\\p{L}\\s\\d×x*-]+$", message = "Kích thước chỉ được chứa chữ, số, dấu × và -")
