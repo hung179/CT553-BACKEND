@@ -2,6 +2,7 @@ package com.ecommerce.studentmarket.order.services;
 
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponseType;
+import com.ecommerce.studentmarket.order.domains.OrderDomain;
 import com.ecommerce.studentmarket.order.domains.OrderItemDomain;
 import com.ecommerce.studentmarket.order.domains.OrderStateDomain;
 import com.ecommerce.studentmarket.order.domains.SubOrderDomain;
@@ -9,6 +10,7 @@ import com.ecommerce.studentmarket.order.dtos.request.SubOrderRequestDto;
 import com.ecommerce.studentmarket.order.dtos.response.OrderItemResponseDto;
 import com.ecommerce.studentmarket.order.dtos.response.OrderStateResponseDto;
 import com.ecommerce.studentmarket.order.dtos.response.SubOrderResponseDto;
+import com.ecommerce.studentmarket.order.repositories.OrderRepository;
 import com.ecommerce.studentmarket.order.repositories.OrderStateRepository;
 import com.ecommerce.studentmarket.order.repositories.SubOrderRepository;
 import com.ecommerce.studentmarket.product.item.services.ProductService;
@@ -52,6 +54,9 @@ public class SubOrderService {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
     public Page<SubOrderResponseDto> getAllSubOrders(Integer page, Integer size) {
@@ -107,9 +112,6 @@ public class SubOrderService {
 
         newOrderState.setXacNhanTTDH(LocalDateTime.now());
 
-        for (OrderItemDomain item : subOrderDomain.getItems()) {
-            productService.decreaseNumberOfProduct(item.getMaCTDH().getMaSP(), item.getSoLuong());
-        }
         orderStateRepository.save(newOrderState);
         return new ApiResponse("Cập nhật trạng thái xác nhận thành công.", true, ApiResponseType.SUCCESS);
     }
@@ -228,8 +230,12 @@ public BigDecimal calculateTotalItemPrice(List<OrderItemDomain> items) {
         newOrderState.setDaHoanTienTTDH(LocalDateTime.now());
 
         for (OrderItemDomain item : subOrderDomain.getItems()) {
-            productService.decreaseNumberOfProduct(item.getMaCTDH().getMaSP(), item.getSoLuong());
+            productService.increaseNumberOfProduct(item.getMaCTDH().getMaSP(), item.getSoLuong());
         }
+
+        OrderDomain orderDomain = subOrderDomain.getOrderDomain();
+
+        paymentService.refundToBuyer(orderDomain);
 
         orderStateRepository.save(newOrderState);
 
@@ -298,6 +304,10 @@ public BigDecimal calculateTotalItemPrice(List<OrderItemDomain> items) {
         orderState.setSubOrder(subOrderDomain);
 
         subOrderDomain.setOrderState(orderState);
+
+        for (OrderItemDomain item : subOrderDomain.getItems()) {
+            productService.decreaseNumberOfProduct(item.getMaCTDH().getMaSP(), item.getSoLuong());
+        }
 
         return subOrderDomain;
     }

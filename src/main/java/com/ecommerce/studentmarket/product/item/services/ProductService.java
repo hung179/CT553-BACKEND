@@ -17,9 +17,11 @@ import com.ecommerce.studentmarket.product.item.exceptions.ProductNotFoundExcept
 import com.ecommerce.studentmarket.product.item.exceptions.ProductOutOfStockException;
 import com.ecommerce.studentmarket.product.item.repositories.ProductRepository;
 import com.ecommerce.studentmarket.student.user.dtos.StudentResponseDto;
+import com.ecommerce.studentmarket.product.item.exceptions.InvalidProductException;
 import com.ecommerce.studentmarket.student.user.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -53,29 +55,67 @@ public class ProductService {
     public Page<ProductResponseDto> getAllProduct(Long maGHDT, Integer page, Integer size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDomain> productDomainPage = productRepository.findByDaXoaFalseAndDaAnFalseAndMaGHSHNot(maGHDT, pageable);
+        Page<ProductDomain> productDomainPage = productRepository.findByDaXoaFalseAndDaAnFalseAndMaGHSHNotAndSoLuongGreaterThan(maGHDT, 0L,pageable);
 
-        return productDomainPage.map(this::convertToProductDtoRespone);
+        List<ProductResponseDto> filteredList = productDomainPage.getContent().stream()
+                .filter(product -> studentService.checkStudentByStoreId(product.getMaGHSH()))
+                .map(this::convertToProductDtoRespone).toList();
+
+        return new PageImpl<>(filteredList, pageable, filteredList.size());
     }
 
-    //   Lấy sản phẩm theo từ khóa tìm kiếm
+//    Lấy sản phẩm theo tên sản phẩm
     public Page<ProductResponseDto> searchProductByName(Long maGHSH, String tenSP, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDomain> productDomainPage = productRepository.findByTenSPContainingIgnoreCaseAndDaXoaFalseAndDaAnFalseAndMaGHSHNot(tenSP, maGHSH, pageable);
-        return productDomainPage.map(this::convertToProductDtoRespone);
+        Page<ProductDomain> productDomainPage =
+                productRepository.findByTenSPContainingIgnoreCaseAndDaXoaFalseAndDaAnFalseAndMaGHSHNotAndSoLuongGreaterThan(
+                        tenSP, maGHSH, 0L, pageable);
+
+        List<ProductResponseDto> filteredList = productDomainPage.getContent().stream()
+                .filter(product -> studentService.checkStudentByStoreId(product.getMaGHSH())) // lọc user hợp lệ
+                .map(this::convertToProductDtoRespone) // convert sang DTO
+                .toList();
+
+        return new PageImpl<>(filteredList, pageable, filteredList.size());
     }
 
-//    Lấy sản phẩm theo tên và người sở hữu
+
+    // Lấy sản phẩm theo tên và đúng người sở hữu
     public Page<ProductResponseDto> searchProductByNameAndMaGHSH(Long maGHSH, String tenSP, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDomain> productDomainPage = productRepository.findByTenSPContainingIgnoreCaseAndDaXoaFalseAndMaGHSH(tenSP, maGHSH, pageable);
-        return productDomainPage.map(this::convertToProductDtoRespone);
+        Page<ProductDomain> productDomainPage =
+                productRepository.findByTenSPContainingIgnoreCaseAndDaXoaFalseAndMaGHSHAndSoLuongGreaterThan(
+                        tenSP, maGHSH, 0L, pageable);
+
+        List<ProductResponseDto> filteredList = productDomainPage.getContent().stream()
+                .filter(product -> studentService.checkStudentByStoreId(product.getMaGHSH()))
+                .map(this::convertToProductDtoRespone)
+                .toList();
+
+        return new PageImpl<>(filteredList, pageable, filteredList.size());
     }
 
+
     public ProductDomain getProductById(Long maSP) {
-        //      Nếu có thể hãy thêm ngoại lệ để bắt việc product có thể không tìm thấy
-        return productRepository.findByMaSPAndDaXoaFalse(maSP);
+        return Optional.ofNullable(productRepository.findByMaSPAndDaXoaFalse(maSP))
+                .filter(product -> studentService.checkStudentByStoreId(product.getMaGHSH())) // chỉ lấy nếu user hợp lệ
+                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại hoặc tài khoản người đăng không hợp lệ"));
     }
+
+    public ApiResponse validateProduct(Long maSP) {
+        ProductDomain product = productRepository.findByMaSPAndDaAnFalseAndDaXoaFalseAndAndSoLuongGreaterThan(maSP, 0L);
+
+        if (product == null) {
+            throw new InvalidProductException("Sản phẩm không tồn tại");
+        }
+
+        Long maGHSH = product.getMaGHSH();
+        if (!studentService.checkStudentByStoreId(maGHSH)) {
+            throw new InvalidProductException("Tài khoản người đăng sản phẩm đã bị đình chỉ !");
+        }
+        return new ApiResponse("Sản phẩm hợp lệ", true, ApiResponseType.SUCCESS);
+    }
+
 
     //    Trả về sản phẩm theo mã sản phẩm
     public ProductResponseDto getProductResponetById(Long maSP) {
@@ -85,7 +125,7 @@ public class ProductService {
 
     //Thêm sản phẩm
     @Transactional(rollbackFor = Exception.class)
-    public ProductDomain createProduct(ProductRequestDto productRequestDto, List<MultipartFile> files){
+    public ApiResponse createProduct(ProductRequestDto productRequestDto, List<MultipartFile> files){
 
         ProductDomain savedProduct = productRepository.save(convertToProductDomain(productRequestDto));
 
@@ -103,12 +143,12 @@ public class ProductService {
             savedProduct.setImageIds(newImageId);
         }
 
-        return savedProduct;
+        return new ApiResponse("Thêm sản phẩm thành công", true, ApiResponseType.SUCCESS);
     }
 
     //    Cập nhật sản phẩm
     @Transactional(rollbackFor = Exception.class)
-    public ProductDomain updateProduct(Long maSP, ProductRequestDto productRequestDto, List<MultipartFile> files){
+    public ApiResponse updateProduct(Long maSP, ProductRequestDto productRequestDto, List<MultipartFile> files){
         ProductDomain productDomain = getProductById(maSP);
         if (files != null && !files.isEmpty()){
 //            Kiểm tra ảnh đại diện có bị thay thế
@@ -153,7 +193,8 @@ public class ProductService {
             }
         }
         patchProductFromDto(productDomain, productRequestDto);
-        return productRepository.save(productDomain);
+        productRepository.save(productDomain);
+        return new ApiResponse("Cập nhật sản phẩm thành công", true, ApiResponseType.SUCCESS);
     }
 
     //    Ẩn sản phẩm
@@ -264,23 +305,23 @@ public class ProductService {
     }
 
     //Giảm số lượng sản phẩm
-    public ApiResponse decreaseNumberOfProduct(Long maSP, Long soLuong){
+    public void decreaseNumberOfProduct(Long maSP, Long soLuong){
         ProductDomain product = productRepository.findById(maSP).orElseThrow(
                 () -> new ProductNotFoundException(maSP)
         );
         Long productQuantity = product.getSoLuong();
         if (productQuantity < soLuong){
-            throw new ProductOutOfStockException(product.getTenSP(), soLuong);
+            throw new ProductOutOfStockException(product.getTenSP(), productQuantity);
         }
         product.setSoLuong( productQuantity - soLuong);
 
         productRepository.save(product);
 
-        return new ApiResponse("Giảm số lượng sản phẩm thành công", true, ApiResponseType.SUCCESS);
+        new ApiResponse("Giảm số lượng sản phẩm thành công", true, ApiResponseType.SUCCESS);
     }
 
     //Hoàn trả số lượng sản phẩm (Khách hàng hoàn trả)
-    public ApiResponse increaseNumberOfProduct(Long maSP, Long soLuong){
+    public void increaseNumberOfProduct(Long maSP, Long soLuong){
         ProductDomain product = productRepository.findById(maSP).orElseThrow(
                 () -> new ProductNotFoundException(maSP)
         );
@@ -289,6 +330,36 @@ public class ProductService {
 
         productRepository.save(product);
 
-        return new ApiResponse("Hoàn trả số lượng sản phẩm thành công", true, ApiResponseType.SUCCESS);
+        new ApiResponse("Hoàn trả số lượng sản phẩm thành công", true, ApiResponseType.SUCCESS);
     }
+
+    public Page<ProductResponseDto> findProductByMaDM(Long maGHSH, Long maDM, Integer page, Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDomain> productDomainPage = productRepository.findByCategory_MaDMAndDaXoaFalseAndDaAnFalseAndMaGHSHNotAndSoLuongGreaterThan(maDM, maGHSH, 0L,pageable);
+        return productDomainPage.map(this::convertToProductDtoRespone);
+    }
+
+    public Page<ProductResponseDto> searchProductByNameAndMaDM(Long maGHSH, Long maDM, String tenSP, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDomain> productDomainPage = productRepository.findByTenSPContainingIgnoreCaseAndCategory_MaDMAndDaXoaFalseAndDaAnFalseAndMaGHSHNotAndSoLuongGreaterThan(tenSP, maDM, maGHSH, 0L, pageable);
+        return productDomainPage.map(this::convertToProductDtoRespone);
+    }
+
+    public Page<ProductResponseDto> getAllProductByAdmin(Integer page, Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDomain> productDomainPage = productRepository.findByDaXoaFalse(pageable);
+
+        return productDomainPage.map(this::convertToProductDtoRespone);
+    }
+
+    public Page<ProductResponseDto> getByTenSP(String tenSP, Integer page, Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDomain> productDomainPage = productRepository.findByTenSPContainingIgnoreCaseAndDaXoaFalse(tenSP, pageable);
+
+        return productDomainPage.map(this::convertToProductDtoRespone);
+    }
+
 }

@@ -101,6 +101,12 @@ public class StudentService {
             return convertToStudentResponseDto(student);
     }
 
+    //Kiểm tra sinh viên theo mã gian hàng
+    public Boolean checkStudentByStoreId(Long maGH){
+        StudentDomain student = studentRepository.findByStore_maGHDT(maGH);
+        return student.getTrangThai().equals(TrangThai.HOATDONG);
+    }
+
     //  Truy xuất toàn bộ tài khoản sinh viên
     @Transactional(readOnly = true)
     public Page<StudentResponseDto> getAllStudent(Integer page, Integer size) {
@@ -450,5 +456,43 @@ public class StudentService {
         Optional.ofNullable(dto.getKhoa()).ifPresent(target::setKhoa);
         Optional.ofNullable(dto.getGioiTinh()).ifPresent(target::setGioiTinh);
         Optional.ofNullable(dto.getNgaySinh()).ifPresent(target::setNgaySinh);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResponse changePassword(String mssv, String oldPassword, String newPassword) {
+        try {
+            // Tìm sinh viên theo MSSV
+            StudentDomain student = studentRepository.findById(mssv)
+                    .orElseThrow(() -> new StudentNotFoundException(mssv));
+
+            // Kiểm tra mật khẩu cũ có đúng không
+            if (!passwordEncoder.matches(oldPassword, student.getPassword())) {
+                return new ApiResponse("Mật khẩu cũ không chính xác", false, ApiResponseType.EXISTS);
+            }
+
+            // Kiểm tra mật khẩu mới không được giống mật khẩu cũ
+            if (passwordEncoder.matches(newPassword, student.getPassword())) {
+                return new ApiResponse("Mật khẩu mới không được giống mật khẩu cũ", false, ApiResponseType.EXISTS);
+            }
+
+            // Kiểm tra độ dài mật khẩu mới (tùy yêu cầu business)
+            if (newPassword == null || newPassword.trim().length() < 6) {
+                return new ApiResponse("Mật khẩu mới phải có ít nhất 6 ký tự", false, ApiResponseType.EXISTS);
+            }
+
+            // Mã hóa và cập nhật mật khẩu mới
+            String encodedNewPassword = passwordEncoder.encode(newPassword);
+            student.setPassword(encodedNewPassword);
+
+            // Lưu thay đổi
+            studentRepository.save(student);
+
+            return new ApiResponse("Đổi mật khẩu thành công", true, ApiResponseType.SUCCESS);
+
+        } catch (StudentNotFoundException e) {
+            return new ApiResponse("Không tìm thấy sinh viên với MSSV: " + mssv, false, ApiResponseType.NOTFOUND);
+        } catch (Exception e) {
+            return new ApiResponse("Lỗi hệ thống: " + e.getMessage(), false, ApiResponseType.EXISTS);
+        }
     }
 }

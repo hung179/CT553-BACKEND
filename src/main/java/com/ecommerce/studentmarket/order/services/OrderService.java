@@ -115,7 +115,6 @@ public class OrderService {
         Optional.ofNullable(orderRequestDto.getTongTienDH()).ifPresent(orderDomain::setTongTienDH);
         orderDomain.setThoiGianTaoDH(LocalDateTime.now());
         Optional.ofNullable(orderRequestDto.getThanhToan()).ifPresent(orderDomain::setThanhToan);
-        Optional.ofNullable(orderRequestDto.getThanhToan()).ifPresent(orderDomain::setThanhToan);
 
         return orderDomain;
     }

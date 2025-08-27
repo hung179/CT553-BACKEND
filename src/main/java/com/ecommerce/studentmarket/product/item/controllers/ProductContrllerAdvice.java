@@ -2,6 +2,7 @@ package com.ecommerce.studentmarket.product.item.controllers;
 
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponseType;
+import com.ecommerce.studentmarket.product.item.exceptions.InvalidProductException;
 import com.ecommerce.studentmarket.product.item.exceptions.ProductAlreadyDeletedException;
 import com.ecommerce.studentmarket.product.item.exceptions.ProductAlreadyExistsException;
 import com.ecommerce.studentmarket.product.item.exceptions.ProductNotFoundException;
@@ -24,6 +25,11 @@ public class ProductContrllerAdvice {
 
     @ExceptionHandler(ProductAlreadyDeletedException.class)
     public ResponseEntity<ApiResponse> handleProductAlreadDeleted (ProductAlreadyDeletedException e){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage(), false, ApiResponseType.DELETED));
+    }
+
+    @ExceptionHandler(InvalidProductException.class)
+    public ResponseEntity<ApiResponse> handleInvalidProduct (InvalidProductException e){
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage(), false, ApiResponseType.DELETED));
     }
 }

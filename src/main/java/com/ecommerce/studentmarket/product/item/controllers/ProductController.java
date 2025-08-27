@@ -19,6 +19,25 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<?> getAllProductByAdmin(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ) {
+        return ResponseEntity.ok(productService.getAllProductByAdmin( page, size));
+    }
+
+    @GetMapping("/admin/search")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<?> searchProductByNameAndDaXoaFalse(
+            @RequestParam String tenSP,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ){
+        return ResponseEntity.ok(productService.getByTenSP(tenSP, page, size));
+    }
+
     @GetMapping("/all/{maGHDT}")
     @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> getAllProduct(
@@ -52,7 +71,6 @@ public class ProductController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size
     ){
-        System.out.println(tenSP +" "+ page +" "+size);
         return ResponseEntity.ok(productService.searchProductByName(maGHDT, tenSP, page, size));
     }
 
@@ -115,5 +133,31 @@ public class ProductController {
             @RequestParam(defaultValue = "10") Integer size
     ){
         return ResponseEntity.ok(productService.getProductByStoreIdNotHidden(maGHSH, page, size));
+    }
+    @GetMapping("/categories/{maGHSH}")
+    public ResponseEntity<?> findProductByMaDM(
+            @PathVariable Long maGHSH,
+            @RequestParam Long maDM,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ){
+        return ResponseEntity.ok(productService.findProductByMaDM(maGHSH ,maDM, page, size));
+    }
+
+    @GetMapping("/categories/search/{maGHSH}")
+    public ResponseEntity<?> findProductByMaDM(
+            @PathVariable Long maGHSH,
+            @RequestParam Long maDM,
+            @RequestParam String tenSP,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ){
+        return ResponseEntity.ok(productService.searchProductByNameAndMaDM(maGHSH ,maDM, tenSP, page, size));
+    }
+    @PostMapping("checkProduct/{maSP}")
+    public ResponseEntity<?> validateAndGetProduct(
+            @PathVariable Long maSP
+            ){
+        return ResponseEntity.ok(productService.validateProduct(maSP));
     }
 }

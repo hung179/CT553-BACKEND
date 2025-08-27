@@ -4,6 +4,8 @@ import com.ecommerce.studentmarket.common.authencation.exceptions.Unauthenticate
 import com.ecommerce.studentmarket.common.authencation.dtos.*;
 import com.ecommerce.studentmarket.student.user.domains.StudentDomain;
 import com.ecommerce.studentmarket.student.user.domains.StudentInvalidatedTokenDomain;
+import com.ecommerce.studentmarket.student.user.enums.TrangThai;
+import com.ecommerce.studentmarket.student.user.exceptions.StudentAccountLockedException;
 import com.ecommerce.studentmarket.student.user.exceptions.StudentNotFoundException;
 import com.ecommerce.studentmarket.student.user.repositories.StudentInvalidatedTokenRepository;
 import com.ecommerce.studentmarket.student.user.repositories.StudentRepository;
@@ -60,6 +62,9 @@ public class StudentAuthenticationService {
                     return new StudentNotFoundException(request.getUsername());
                 }
         );
+        if (student.getTrangThai() == TrangThai.DINHCHI){
+            throw new StudentAccountLockedException("Tài khoản của sinh viên đã bị đình chỉ hoạt động !");
+        }
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), student.getPassword());
         if (!authenticated) {

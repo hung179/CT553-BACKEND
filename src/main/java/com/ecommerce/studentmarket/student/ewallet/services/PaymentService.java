@@ -6,6 +6,7 @@ import com.ecommerce.studentmarket.admin.systemwallet.services.SystemWalletServi
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponse;
 import com.ecommerce.studentmarket.common.apiconfig.ApiResponseType;
 import com.ecommerce.studentmarket.common.exchangerate.ExchangeRateService;
+import com.ecommerce.studentmarket.order.domains.OrderDomain;
 import com.ecommerce.studentmarket.student.ewallet.domains.EwalletDomain;
 import com.ecommerce.studentmarket.student.ewallet.domains.TransactionDomain;
 import com.ecommerce.studentmarket.student.ewallet.dtos.EwalletResponseDto;
@@ -290,6 +291,17 @@ public ApiResponse handlePayTheOrder(String mssv, TransactionRequestDto transact
         Page<TransactionDomain> page = transactionRepository.findAllByWallet_MaVDT(maVDT, pageable);
 
         return page.map(this::convertToTransactionResponseDto);
+    }
+
+//    Hoàn tiền cho người dùng
+    public void refundToBuyer(OrderDomain orderDomain){
+        EwalletDomain ewalletDomain = ewalletRepository.findByStudent_Mssv(orderDomain.getMssvDH());
+
+        BigDecimal soDuMoi = ewalletDomain.getSoDuVDT().add(orderDomain.getTongTienDH());
+
+        ewalletDomain.setSoDuVDT(soDuMoi);
+
+        ewalletRepository.save(ewalletDomain);
     }
 
     private EwalletResponseDto convertToEwalletResponseDto(EwalletDomain ewalletDomain){

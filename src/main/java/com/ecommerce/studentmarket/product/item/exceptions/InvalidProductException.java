@@ -1,6 +1,4 @@
-package com.ecommerce.studentmarket.student.user.exceptions;
-
-import com.ecommerce.studentmarket.product.item.exceptions.ProductException;
+package com.ecommerce.studentmarket.product.item.exceptions;
 
 public class InvalidProductException extends ProductException {
     public InvalidProductException(String message) {

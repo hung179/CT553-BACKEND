@@ -80,4 +80,13 @@ public class StudentController {
         return ResponseEntity.ok(studentService.createStudentsFromExcel(file));
     }
 
+    @PostMapping("/changePassword/{mssv}")
+    @PreAuthorize("hasRole('admin') or #mssv == authentication.name")
+    public ResponseEntity<?> changePassword(
+            @PathVariable String mssv,
+            @RequestParam String oldPassword,
+            @RequestParam String newPassword
+    ){
+        return ResponseEntity.ok(studentService.changePassword(mssv, oldPassword, newPassword));
+    }
 }
