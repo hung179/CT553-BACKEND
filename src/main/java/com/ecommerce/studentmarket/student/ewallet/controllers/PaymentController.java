@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping("/pay/{mssv}")
+    @PreAuthorize("hasRole('admin') or #mssv == authentication.name")
     public ResponseEntity<?> payTheOrder(
             @PathVariable String mssv,
             @RequestBody TransactionRequestDto transactionRequestDto
@@ -31,12 +33,14 @@ public class PaymentController {
     }
 
     @GetMapping("/{mssv}")
+    @PreAuthorize("hasRole('admin') or #mssv == authentication.name")
     public ResponseEntity<?> getEwalletInfo(
             @PathVariable String mssv
     ){
         return ResponseEntity.ok(paymentService.getEwalletInfo(mssv));
     }
     @GetMapping("/transactions/{maVDT}")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> getTransactions(
             @PathVariable Long maVDT,
             @RequestParam(defaultValue = "0") int page,

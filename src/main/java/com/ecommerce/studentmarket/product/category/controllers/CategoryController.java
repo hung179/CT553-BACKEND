@@ -44,6 +44,7 @@ public class CategoryController {
     }
 
     @PatchMapping("/update/{maDM}")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<?> updateCategory(
             @PathVariable Long maDM,
             @RequestBody CategoryRequestDto categoryRequestDto
@@ -52,6 +53,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/delete/{maDM}")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<?> deleteCategory(
             @PathVariable Long maDM
     ){

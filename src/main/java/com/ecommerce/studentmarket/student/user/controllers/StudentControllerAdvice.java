@@ -25,12 +25,12 @@ public class StudentControllerAdvice {
 
     @ExceptionHandler(StudentAccountLockedException.class)
     public ResponseEntity<ApiResponse> handleStudentAccountLockedException( StudentAccountLockedException e){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage(), false, ApiResponseType.ACCOUNTLOCKED));
+        return ResponseEntity.status(HttpStatus.LOCKED).body(new ApiResponse(e.getMessage(), false, ApiResponseType.ACCOUNTLOCKED));
     }
 
     @ExceptionHandler(UnauthenticatedException.class)
     public ResponseEntity<ApiResponse> handleUnauthenticatedException( UnauthenticatedException e){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage(), false, ApiResponseType.UNAUTHENTICATED));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(e.getMessage(), false, ApiResponseType.UNAUTHENTICATED));
     }
 
 }

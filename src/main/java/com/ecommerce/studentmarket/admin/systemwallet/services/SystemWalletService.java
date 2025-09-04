@@ -5,6 +5,7 @@ import com.ecommerce.studentmarket.admin.systemwallet.domains.SystemWalletDomain
 import com.ecommerce.studentmarket.admin.systemwallet.dtos.SystemTransactionRequestDto;
 import com.ecommerce.studentmarket.admin.systemwallet.dtos.SystemTransactionResponseDto;
 import com.ecommerce.studentmarket.admin.systemwallet.dtos.SystemWalletResponseDto;
+import com.ecommerce.studentmarket.admin.systemwallet.exceptions.SystemWalletNotFoundException;
 import com.ecommerce.studentmarket.admin.systemwallet.repositories.SystemTransactionRepository;
 import com.ecommerce.studentmarket.admin.systemwallet.repositories.SystemWalletRepository;
 import com.ecommerce.studentmarket.student.ewallet.enums.TrangThaiGiaoDich;
@@ -30,7 +31,7 @@ public class SystemWalletService {
 //    Lấy ví hệ thống
     public SystemWalletResponseDto getSystemWallet() {
         SystemWalletDomain systemWallet = systemWalletRepository.findTopByOrderByMaVHTAsc().orElseThrow(
-                () -> new RuntimeException("Không tìm thấy ví hệ thống")
+                SystemWalletNotFoundException::new
         );
 
         return convertToSystemWalletResponseDto(systemWallet);
@@ -45,7 +46,7 @@ public class SystemWalletService {
 //Hàm lấy thông tin giao dịch nạp tiền của sinh viên
     public void handleSuccessfulPayment(SystemTransactionRequestDto systemTransactionRequestDto) {
         SystemWalletDomain systemWallet = systemWalletRepository.findTopByOrderByMaVHTAsc().orElseThrow(
-                () -> new RuntimeException("Không tìm thấy ví hệ thống")
+                SystemWalletNotFoundException::new
         );
 
         SystemTransactionDomain transactionDomain = convertToSystemTransactionDomain(systemTransactionRequestDto);
@@ -60,7 +61,7 @@ public class SystemWalletService {
 // Hàm chiết khấu thanh toán đơn hàng cho hệ thống
     public void handlePayTheOrder(BigDecimal amount, SystemTransactionRequestDto systemTransactionRequestDto){
         SystemWalletDomain systemWallet = systemWalletRepository.findTopByOrderByMaVHTAsc().orElseThrow(
-                () -> new RuntimeException("Không tìm thấy ví hệ thống")
+                SystemWalletNotFoundException::new
         );
 
         BigDecimal total = systemWallet.getSoDuVHT().add(amount);
@@ -123,7 +124,7 @@ public class SystemWalletService {
     public void handleWithdrawFee(BigDecimal phiRut, SystemTransactionRequestDto feeTransaction) {
         // 1. Lấy ví hệ thống
         SystemWalletDomain systemWallet = systemWalletRepository.findTopByOrderByMaVHTAsc()
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy ví hệ thống"));
+                .orElseThrow(SystemWalletNotFoundException::new);
 
         // 2. Cộng phí rút vào số dư ví hệ thống
         BigDecimal newBalance = systemWallet.getSoDuVHT().add(phiRut);

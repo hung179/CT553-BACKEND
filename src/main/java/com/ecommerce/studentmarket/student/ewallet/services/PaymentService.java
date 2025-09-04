@@ -14,6 +14,8 @@ import com.ecommerce.studentmarket.student.ewallet.dtos.TransactionRequestDto;
 import com.ecommerce.studentmarket.student.ewallet.dtos.TransactionResponseDto;
 import com.ecommerce.studentmarket.student.ewallet.enums.LoaiGiaoDich;
 import com.ecommerce.studentmarket.student.ewallet.enums.TrangThaiGiaoDich;
+import com.ecommerce.studentmarket.student.ewallet.exceptions.PaymentAlreadyProcessedException;
+import com.ecommerce.studentmarket.student.ewallet.exceptions.PaymentInsufficientWalletBalanceException;
 import com.ecommerce.studentmarket.student.ewallet.repositories.EwalletRepository;
 import com.ecommerce.studentmarket.student.ewallet.repositories.TransactionRepository;
 import com.paypal.api.payments.Payment;
@@ -101,7 +103,7 @@ public class PaymentService {
 
         Boolean exists = transactionRepository.existsByIdGiaoDich(paymentId);
         if (exists){
-            throw new RuntimeException("Giao dịch này đã được xử lý");
+            throw new PaymentAlreadyProcessedException();
         }
 
         TransactionDomain transactionDomain = new TransactionDomain();
@@ -175,7 +177,7 @@ public ApiResponse handlePayTheOrder(String mssv, TransactionRequestDto transact
         BigDecimal tongTienCanTru = soTienGiaoDich.add(chietKhau);
 
         if (totalCoin.compareTo(tongTienCanTru) < 0) {
-            throw new RuntimeException("Không đủ số dư ví, cần nạp thêm");
+            throw new PaymentInsufficientWalletBalanceException();
         }
     }
 
@@ -222,30 +224,23 @@ public ApiResponse handlePayTheOrder(String mssv, TransactionRequestDto transact
     @Transactional(rollbackFor = Exception.class)
     public void withdrawFromEwallet(String mssv, BigDecimal soTienRut, String paypalEmail, String batchId) {
 
-        // 1. Kiểm tra số dư
         EwalletDomain ewalletDomain = ewalletRepository.findByStudent_Mssv(mssv);
         BigDecimal currentBalance = ewalletDomain.getSoDuVDT();
 
         if (currentBalance.compareTo(soTienRut) < 0) {
-            throw new RuntimeException("Số dư không đủ để rút tiền");
+            throw new PaymentInsufficientWalletBalanceException();
         }
 
-        // 2. Tính phí rút (nếu có) — ví dụ 5%
+        // Tính phí rút — 5%
         BigDecimal phiRut = soTienRut.multiply(BigDecimal.valueOf(0.05));
         BigDecimal tongTru = soTienRut.add(phiRut);
 
         if (currentBalance.compareTo(tongTru) < 0) {
-            throw new RuntimeException("Số dư không đủ để rút tiền sau khi tính phí");
+            throw new PaymentInsufficientWalletBalanceException();
         }
 
-        // 3. Gọi API PayPal Payouts (nếu tích hợp)
-        // Bạn cần có service PaypalPayoutService để thực hiện chuyển tiền
-        // paypalPayoutService.sendPayout(paypalEmail, soTienRut);
-
-        // 4. Trừ tiền khỏi ví
         ewalletDomain.setSoDuVDT(currentBalance.subtract(tongTru));
 
-        // 5. Lưu giao dịch
         TransactionDomain transactionDomain = new TransactionDomain();
         transactionDomain.setSoTienGD(soTienRut);
         transactionDomain.setLoaiGD(LoaiGiaoDich.RUTTIEN);

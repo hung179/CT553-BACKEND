@@ -10,6 +10,7 @@ import org.apache.poi.hpsf.Decimal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +33,7 @@ public class PaypalController {
     private static BigDecimal amountVND;
 
     @PostMapping("/pay")
+    @PreAuthorize("hasRole('student')")
     public String processPayment(@RequestParam("amount") BigDecimal amount,
                                  @RequestParam("description") String description,
                                  @RequestParam("amountVND") BigDecimal amountVND,
@@ -63,6 +65,7 @@ public class PaypalController {
     }
 
     @GetMapping("/success/{mssv}")
+    @PreAuthorize("#mssv == authentication.name")
     public ResponseEntity<?> successPay(
             @PathVariable String mssv,
             @RequestParam("paymentId") String paymentId,
@@ -81,6 +84,7 @@ public class PaypalController {
     }
 
     @PostMapping("/withdraw/{mssv}")
+    @PreAuthorize("#mssv == authentication.name")
     public ResponseEntity<?> withdraw(
             @PathVariable String mssv,
             @RequestParam String email,
@@ -104,6 +108,7 @@ public class PaypalController {
     }
 
     @PostMapping("/webhook")
+    @PreAuthorize("hasRole('student')")
     public ResponseEntity<?> handleWebhook(
             @RequestBody Map<String, Object> payload,
             @RequestHeader Map<String, String> headers) {

@@ -10,7 +10,7 @@ import com.ecommerce.studentmarket.order.dtos.request.OrderRequestDto;
 import com.ecommerce.studentmarket.order.dtos.response.AddressOrderResponseDto;
 import com.ecommerce.studentmarket.order.dtos.response.OrderResponseDto;
 import com.ecommerce.studentmarket.order.dtos.response.SubOrderResponseDto;
-import com.ecommerce.studentmarket.order.exceptions.OrderNotFoundException;
+import com.ecommerce.studentmarket.order.exceptions.order.OrderNotFoundException;
 import com.ecommerce.studentmarket.order.repositories.OrderRepository;
 import com.ecommerce.studentmarket.student.ewallet.dtos.TransactionRequestDto;
 import com.ecommerce.studentmarket.student.ewallet.enums.LoaiGiaoDich;

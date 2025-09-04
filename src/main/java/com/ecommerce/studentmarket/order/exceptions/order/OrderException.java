@@ -1,4 +1,4 @@
-package com.ecommerce.studentmarket.order.exceptions;
+package com.ecommerce.studentmarket.order.exceptions.order;
 
 public class OrderException extends RuntimeException{
 

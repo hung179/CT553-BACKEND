@@ -24,12 +24,12 @@ public class ProductContrllerAdvice {
     }
 
     @ExceptionHandler(ProductAlreadyDeletedException.class)
-    public ResponseEntity<ApiResponse> handleProductAlreadDeleted (ProductAlreadyDeletedException e){
+    public ResponseEntity<ApiResponse> handleProductAlreadyDeleted (ProductAlreadyDeletedException e){
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage(), false, ApiResponseType.DELETED));
     }
 
     @ExceptionHandler(InvalidProductException.class)
     public ResponseEntity<ApiResponse> handleInvalidProduct (InvalidProductException e){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage(), false, ApiResponseType.DELETED));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage(), false, ApiResponseType.INVALID));
     }
 }

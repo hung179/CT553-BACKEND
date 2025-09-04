@@ -10,6 +10,7 @@ import com.ecommerce.studentmarket.order.dtos.request.SubOrderRequestDto;
 import com.ecommerce.studentmarket.order.dtos.response.OrderItemResponseDto;
 import com.ecommerce.studentmarket.order.dtos.response.OrderStateResponseDto;
 import com.ecommerce.studentmarket.order.dtos.response.SubOrderResponseDto;
+import com.ecommerce.studentmarket.order.exceptions.suborder.*;
 import com.ecommerce.studentmarket.order.repositories.OrderRepository;
 import com.ecommerce.studentmarket.order.repositories.OrderStateRepository;
 import com.ecommerce.studentmarket.order.repositories.SubOrderRepository;
@@ -29,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,7 +105,7 @@ public class SubOrderService {
     public ApiResponse changeOrderStateToXacNhan(Long maDHC){
 
         SubOrderDomain subOrderDomain = subOrderRepository.findByIdWithItems(maDHC)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng con"));
+                .orElseThrow(() -> new SubOrderNotFoundException(maDHC));
 
 
         OrderStateDomain newOrderState = orderStateRepository.findBySubOrder_MaDHC(maDHC);
@@ -140,13 +140,13 @@ public class SubOrderService {
         OrderStateDomain newOrderState = orderStateRepository.findBySubOrder_MaDHC(maDHC);
 
         SubOrderDomain subOrder = subOrderRepository.findById(maDHC).orElseThrow(
-                () -> new RuntimeException("Không tìm thấy đơn hàng con")
+                () -> new SubOrderNotFoundException(maDHC)
         );
 
         newOrderState.setDaNhanTTDH(LocalDateTime.now());
 
         StoreDomain store = storeRepository.findById(subOrder.getMaGianHangDHC()).orElseThrow(
-                () -> new RuntimeException("Không tìm thấy gian hàng")
+                () -> new SubOrderStoreNotFoundException(subOrder.getMaGianHangDHC())
         );
 
         TransactionRequestDto transactionRequest = convertToTransactionRequestDto(subOrder, newOrderState.getDaNhanTTDH());
@@ -197,11 +197,11 @@ public BigDecimal calculateTotalItemPrice(List<OrderItemDomain> items) {
         OrderStateDomain newOrderState = orderStateRepository.findBySubOrder_MaDHC(maDHC);
 
         if (newOrderState == null) {
-            throw new RuntimeException("Không tìm thấy trạng thái đơn hàng với mã đơn hàng con: " + maDHC);
+            throw new SubOrderNotPendingApprovalException(maDHC);
         }
 
         if (newOrderState.getChoDuyetTTDH() == null) {
-            throw new RuntimeException("Đơn hàng không ở trạng thái 'Chờ duyệt', không thể hủy.");
+            throw new SubOrderAlreadyProcessedException(maDHC);
         }
 
         if (newOrderState.getXacNhanTTDH() != null ||
@@ -209,7 +209,7 @@ public BigDecimal calculateTotalItemPrice(List<OrderItemDomain> items) {
                 newOrderState.getDaGiaoTTDH() != null ||
                 newOrderState.getDaNhanTTDH() != null ||
                 newOrderState.getDaHoanTienTTDH() != null) {
-            throw new RuntimeException("Đơn hàng đã được xử lý, không thể hủy.");
+            throw new SubOrderAlreadyProcessedException(maDHC);
         }
 
         newOrderState.setDaHuyTTDH(LocalDateTime.now());
@@ -222,7 +222,7 @@ public BigDecimal calculateTotalItemPrice(List<OrderItemDomain> items) {
     public ApiResponse changeOrderStateToDaHoanTien(Long maDHC){
 
         SubOrderDomain subOrderDomain = subOrderRepository.findByIdWithItems(maDHC)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng con"));
+                .orElseThrow(() -> new SubOrderNotFoundException(maDHC));
 
 
         OrderStateDomain newOrderState = orderStateRepository.findBySubOrder_MaDHC(maDHC);
@@ -281,7 +281,7 @@ public BigDecimal calculateTotalItemPrice(List<OrderItemDomain> items) {
                 Page<SubOrderDomain> subOrderDomains = subOrderRepository.findAllDaHoanTien(pageable);
                 yield subOrderDomains.map(this::convertToSubOrderResponseDto);
             }
-            default -> throw new IllegalArgumentException("Trạng thái không hợp lệ: " + trangThai);
+            default -> throw new SubOrderInvalidStateException(trangThai);
         };
     }
 

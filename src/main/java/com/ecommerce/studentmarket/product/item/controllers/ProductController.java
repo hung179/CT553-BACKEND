@@ -86,6 +86,7 @@ public class ProductController {
     }
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> createProduct(
             @RequestPart("productDto") ProductRequestDto productRequestDto,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
@@ -95,6 +96,7 @@ public class ProductController {
 
 
     @PatchMapping("/update/{maSP}")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> updateProduct(
             @PathVariable Long maSP,
             @RequestPart ProductRequestDto productRequestDto,
@@ -104,6 +106,7 @@ public class ProductController {
     }
 
     @PostMapping("/disappear/{maSP}")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> toggleProductVisibility(
             @PathVariable Long maSP
     ){
@@ -111,6 +114,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete/{maSP}")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> deleteProduct(
             @PathVariable Long maSP
     ){
@@ -118,6 +122,7 @@ public class ProductController {
     }
 
     @GetMapping("user/{maGHSH}")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> getProductByStoreId(
             @PathVariable Long maGHSH,
             @RequestParam(defaultValue = "0") Integer page,
@@ -127,6 +132,7 @@ public class ProductController {
     }
 
     @GetMapping("/user/notHidden/{maGHSH}")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> getProductByStoreIdNotHidden(
             @PathVariable Long maGHSH,
             @RequestParam(defaultValue = "0") Integer page,
@@ -135,6 +141,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductByStoreIdNotHidden(maGHSH, page, size));
     }
     @GetMapping("/categories/{maGHSH}")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> findProductByMaDM(
             @PathVariable Long maGHSH,
             @RequestParam Long maDM,
@@ -145,6 +152,7 @@ public class ProductController {
     }
 
     @GetMapping("/categories/search/{maGHSH}")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> findProductByMaDM(
             @PathVariable Long maGHSH,
             @RequestParam Long maDM,
@@ -155,6 +163,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.searchProductByNameAndMaDM(maGHSH ,maDM, tenSP, page, size));
     }
     @PostMapping("checkProduct/{maSP}")
+    @PreAuthorize("hasRole('admin') or hasRole('student')")
     public ResponseEntity<?> validateAndGetProduct(
             @PathVariable Long maSP
             ){

@@ -1,6 +1,4 @@
-package com.ecommerce.studentmarket.order.exceptions;
-
-import com.ecommerce.studentmarket.product.category.exceptions.CategoryException;
+package com.ecommerce.studentmarket.order.exceptions.order;
 
 public class OrderNotFoundException extends OrderException {
     public OrderNotFoundException(Long maDH){

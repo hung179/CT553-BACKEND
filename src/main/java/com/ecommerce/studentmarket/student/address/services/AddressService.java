@@ -5,9 +5,12 @@ import com.ecommerce.studentmarket.common.apiconfig.ApiResponseType;
 import com.ecommerce.studentmarket.student.address.domains.AddressDomain;
 import com.ecommerce.studentmarket.student.address.dtos.AddressRequestDto;
 import com.ecommerce.studentmarket.student.address.dtos.AddressResponseDto;
+import com.ecommerce.studentmarket.student.address.exceptions.AddressLimitExceededException;
+import com.ecommerce.studentmarket.student.address.exceptions.AddressNotFoundException;
 import com.ecommerce.studentmarket.student.address.repositories.AddressRepository;
 import com.ecommerce.studentmarket.student.user.domains.StudentDomain;
 import com.ecommerce.studentmarket.student.user.dtos.StudentResponseDto;
+import com.ecommerce.studentmarket.student.user.exceptions.StudentNotFoundException;
 import com.ecommerce.studentmarket.student.user.repositories.StudentRepository;
 import com.ecommerce.studentmarket.student.user.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +35,7 @@ public class AddressService {
 //Tìm địa chỉ theo id
     public AddressResponseDto getAddressById(Long id){
         AddressDomain address = addressRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Không tìm thấy địa chỉ")
+                () -> new AddressNotFoundException(id)
         );
         return convertToAddressResponseDto(address);
     }
@@ -48,7 +51,7 @@ public class AddressService {
 
         Long count = addressRepository.countByStudent_Mssv(mssv);
         if (count >= 5) {
-            throw new IllegalStateException("Sinh viên chỉ được sở hữu tối đa 5 địa chỉ.");
+            throw new AddressLimitExceededException();
         }
 
         AddressDomain newAddress = convertToAddressDomain(addressRequestDto);
@@ -59,7 +62,7 @@ public class AddressService {
         }
 
         StudentDomain student = studentRepository.findById(mssv).orElseThrow(
-                () -> new RuntimeException("Không tìm thấy sinh viên")
+                () -> new StudentNotFoundException(mssv)
         );
 
         newAddress.setStudent(student);
@@ -76,7 +79,7 @@ public class AddressService {
 public ApiResponse patchAddress(String mssv, Long maDC ,AddressRequestDto addressRequestDto) {
 
     AddressDomain addressDomain = addressRepository.findById(maDC)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy địa chỉ mới"));
+            .orElseThrow(() -> new AddressNotFoundException(maDC));
 
     patchAddressFromDto(addressDomain, addressRequestDto);
 
@@ -118,11 +121,7 @@ public ApiResponse patchAddress(String mssv, Long maDC ,AddressRequestDto addres
 public ApiResponse deleteAddress(String mssv, Long maDC) {
 
     AddressDomain addressDomain = addressRepository.findById(maDC)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy địa chỉ cần xóa"));
-
-    if (!addressDomain.getStudent().getMssv().equals(mssv)) {
-        throw new RuntimeException("Địa chỉ không thuộc sinh viên này");
-    }
+            .orElseThrow(() -> new AddressNotFoundException(maDC));
 
     // Lấy danh sách các địa chỉ còn lại (ngoại trừ cái sắp xóa)
     List<AddressDomain> otherAddresses = addressRepository.findByStudent_Mssv(mssv).stream()
